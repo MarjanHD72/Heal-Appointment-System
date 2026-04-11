@@ -1,4 +1,4 @@
-// script.js - JavaScript for NHS Booking System
+// script.js - JavaScript for Heal Appointment System
 
 document.addEventListener('DOMContentLoaded', function() {
     // Form validation and submission handling
@@ -104,19 +104,26 @@ function loadAppointments() {
     const appointments = JSON.parse(localStorage.getItem('appointments') || '[]');
 
     if (appointments.length === 0) {
-        appointmentsList.innerHTML = '<p>No appointments booked yet.</p>';
+        appointmentsList.innerHTML = '<p class="empty-state">No appointments booked yet. Your upcoming visits will appear here after you make a booking.</p>';
         return;
     }
 
-    let html = '<ul>';
+    let html = '<div class="appointment-grid">';
     appointments.forEach(appointment => {
+        const appointmentLabels = {
+            gp: 'GP Consultation',
+            nurse: 'Nurse Visit',
+            specialist: 'Specialist Referral'
+        };
+
         html += `
-            <li>
-                <strong>${appointment.type}</strong> on ${appointment.date} at ${appointment.time}<br>
-                Reason: ${appointment.reason}
-            </li>
+            <article class="appointment-card">
+                <span class="appointment-meta">${appointment.date} at ${appointment.time}</span>
+                <h3>${appointmentLabels[appointment.type] || appointment.type}</h3>
+                <p>${appointment.reason}</p>
+            </article>
         `;
     });
-    html += '</ul>';
+    html += '</div>';
     appointmentsList.innerHTML = html;
 }
