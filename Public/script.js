@@ -3,24 +3,41 @@
 document.addEventListener("DOMContentLoaded", function () {
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
-    loginForm.addEventListener("submit", function (e) {
+    loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      if (validateEmail(email) && password.length >= 6) {
-        alert("Login successful! Redirecting to dashboard...");
-        window.location.href = "dashboard.html";
-      } else {
-        alert("Please enter valid email and password (min 6 characters).");
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include", // 👈 خیلی مهم
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Login successful!");
+          window.location.href = "dashboard.html"; // 👈 حالا واقعیه
+        } else {
+          alert(data.message || "Login failed");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
       }
     });
   }
-
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
-    registerForm.addEventListener("submit", function (e) {
+    registerForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const firstName = document.getElementById("firstName").value;
       const lastName = document.getElementById("lastName").value;
       const email = document.getElementById("email").value;
@@ -29,19 +46,36 @@ document.addEventListener("DOMContentLoaded", function () {
       const nhsNumber = document.getElementById("nhsNumber").value;
 
       if (
-        firstName &&
-        lastName &&
-        validateEmail(email) &&
-        password.length >= 6 &&
-        password === confirmPassword &&
-        nhsNumber
+        !firstName ||
+        !lastName ||
+        !validateEmail(email) ||
+        password.length < 6 ||
+        password !== confirmPassword ||
+        !nhsNumber
       ) {
-        alert("Registration successful! Please login.");
-        window.location.href = "login.html";
-      } else {
-        alert(
-          "Please fill all fields correctly. Password must be at least 6 characters and match confirmation.",
-        );
+        return alert("Please fill all fields correctly.");
+      }
+
+      try {
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Registration successful!");
+          window.location.href = "login.html";
+        } else {
+          alert(data.message || "Registration failed");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
       }
     });
   }
@@ -90,12 +124,22 @@ document.addEventListener("DOMContentLoaded", function () {
   if (logoutBtn) {
     logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      alert("Logged out successfully.");
-      window.location.href = "index.html";
+      logoutBtn.addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        await fetch("/api/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+
+        alert("Logged out successfully.");
+        window.location.href = "index.html";
+      });
     });
   }
 
   loadBookingSummary();
+  checkLogin();
 });
 
 function validateEmail(email) {
@@ -378,5 +422,42 @@ function loadBookingSummary() {
     `;
   } else {
     bookingCard.innerHTML = "No booking yet";
+  }
+}
+async function checkLogin() {
+  try {
+    const res = await fetch("/api/me", {
+      credentials: "include",
+    });
+
+    const authBtn = document.getElementById("authBtn");
+
+    if (res.ok) {
+      const user = await res.json();
+      console.log("Logged in:", user);
+
+      // change login btn
+      if (authBtn) {
+        authBtn.innerText = "Dashboard";
+        authBtn.href = "dashboard.html";
+      }
+
+      const logoutBtn = document.getElementById("logout");
+      if (logoutBtn) logoutBtn.style.display = "block";
+    } else {
+      console.log("Not logged in");
+
+      if (authBtn) {
+        authBtn.innerText = "Login";
+        authBtn.href = "login.html";
+      }
+
+      // protect dashboard
+      if (window.location.pathname.includes("dashboard.html")) {
+        window.location.href = "login.html";
+      }
+    }
+  } catch (err) {
+    console.error(err);
   }
 }
