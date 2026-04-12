@@ -30,8 +30,16 @@ body {
   line-height: 1.6;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(120, 200, 155, 0.22), transparent 30%),
-    radial-gradient(circle at top right, rgba(31, 122, 90, 0.18), transparent 28%),
+    radial-gradient(
+      circle at top left,
+      rgba(120, 200, 155, 0.22),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at top right,
+      rgba(31, 122, 90, 0.18),
+      transparent 28%
+    ),
     linear-gradient(180deg, #f8fef9 0%, var(--bg) 52%, #eef8f2 100%);
   min-height: 100vh;
 }
@@ -105,7 +113,8 @@ main {
 
 .hero,
 .form-section,
-.dashboard {
+.dashboard,
+.doctors-directory {
   padding: 4rem 0;
 }
 
@@ -127,6 +136,56 @@ main {
   gap: 2rem;
   padding: 3rem;
   border-radius: var(--radius-lg);
+}
+
+.directory-shell {
+  display: grid;
+  grid-template-columns: 1.2fr 0.85fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-bottom: 2rem;
+}
+
+.directory-intro,
+.detail-panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  border-radius: var(--radius-lg);
+}
+
+.directory-intro {
+  padding: 2.4rem;
+}
+
+.directory-copy {
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 1.05rem;
+}
+
+.directory-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 1.75rem 0;
+}
+
+.doctor-overview {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.detail-panel {
+  position: sticky;
+  top: 112px;
+  padding: 2rem;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.95),
+      rgba(235, 248, 240, 0.96)
+    ),
+    #fff;
 }
 
 .hero-card::after {
@@ -152,6 +211,19 @@ main {
   font-weight: 700;
 }
 
+.detail-badge,
+.doctor-card-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.42rem 0.85rem;
+  border-radius: 999px;
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
 .hero h2,
 .section-title,
 .form-section h2,
@@ -170,6 +242,24 @@ main {
   font-size: 1.05rem;
 }
 
+.detail-role,
+.doctor-card-meta,
+.doctor-card-copy,
+.detail-bio,
+.detail-section p,
+.detail-section li {
+  color: var(--muted);
+}
+
+.detail-role {
+  font-weight: 700;
+  margin-bottom: 0.85rem;
+}
+
+.detail-bio {
+  margin-bottom: 1.4rem;
+}
+
 .hero-actions {
   display: flex;
   gap: 1rem;
@@ -180,7 +270,11 @@ main {
 .hero-highlights,
 .stats-grid,
 .feature-grid,
-.appointment-grid {
+.appointment-grid,
+.doctor-card-grid,
+.detail-stats,
+.directory-filters,
+.doctor-overview {
   display: grid;
   gap: 1rem;
 }
@@ -215,6 +309,11 @@ main {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.detail-stats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-bottom: 1.4rem;
+}
+
 .stat-box {
   padding: 1.25rem;
   border-radius: var(--radius-md);
@@ -234,6 +333,25 @@ main {
   font-size: 1.8rem;
   line-height: 1.1;
   margin-top: 0.35rem;
+}
+
+.detail-stat {
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(31, 122, 90, 0.12);
+}
+
+.detail-stat span {
+  display: block;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.detail-stat strong {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--primary-dark);
 }
 
 .section-heading,
@@ -293,6 +411,90 @@ main {
 .panel {
   border-radius: var(--radius-lg);
   padding: 2.25rem;
+}
+
+.directory-panel {
+  padding: 2rem;
+}
+
+.directory-toolbar {
+  display: grid;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.directory-filters {
+  grid-template-columns: 1.3fr 0.8fr;
+  align-items: end;
+}
+
+.doctor-card-grid {
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+.doctor-card {
+  display: grid;
+  gap: 1rem;
+  padding: 1.4rem;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.84);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 35px rgba(22, 49, 38, 0.08);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.doctor-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(31, 122, 90, 0.28);
+  box-shadow: 0 22px 42px rgba(22, 49, 38, 0.15);
+}
+
+.doctor-card.is-active {
+  border-color: rgba(31, 122, 90, 0.38);
+  box-shadow: 0 22px 42px rgba(31, 122, 90, 0.18);
+}
+
+.doctor-card-header {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 0.8rem;
+}
+
+.doctor-card h4 {
+  color: var(--primary-dark);
+}
+
+.doctor-card-meta {
+  font-size: 0.94rem;
+}
+
+.doctor-card-copy {
+  font-size: 0.96rem;
+}
+
+.doctor-card-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+}
+
+.doctor-card-chip {
+  display: inline-flex;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(31, 122, 90, 0.08);
+  color: var(--primary-dark);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.doctor-card button {
+  width: fit-content;
+  border: none;
 }
 
 form {
@@ -438,6 +640,37 @@ textarea {
   font-weight: 700;
 }
 
+.detail-section + .detail-section {
+  margin-top: 1.2rem;
+}
+
+.detail-section h4 {
+  margin-bottom: 0.75rem;
+  color: var(--primary-dark);
+}
+
+.detail-section ul {
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.detail-section li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.detail-section li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.6rem;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
 footer {
   margin-top: 2rem;
   padding: 1.4rem 0 2rem;
@@ -447,7 +680,8 @@ footer {
 
 @media (max-width: 900px) {
   header .container,
-  .hero-card {
+  .hero-card,
+  .directory-shell {
     grid-template-columns: 1fr;
   }
 
@@ -463,26 +697,37 @@ footer {
 
   .hero-highlights,
   .stats-grid,
-  .form-grid {
+  .form-grid,
+  .detail-stats,
+  .directory-filters,
+  .doctor-overview {
     grid-template-columns: 1fr;
+  }
+
+  .detail-panel {
+    position: static;
   }
 }
 
 @media (max-width: 640px) {
   .hero,
   .form-section,
-  .dashboard {
+  .dashboard,
+  .doctors-directory {
     padding: 2.5rem 0;
   }
 
   .hero-card,
-  .panel {
+  .panel,
+  .directory-intro,
+  .detail-panel {
     padding: 1.5rem;
     border-radius: 22px;
   }
 
   .hero-actions,
-  .dashboard-actions {
+  .dashboard-actions,
+  .directory-actions {
     flex-direction: column;
   }
 

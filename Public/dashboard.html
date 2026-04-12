@@ -1,53 +1,64 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dashboard - Heal Appointment System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <header>
-        <div class="container">
-            <h1>Heal Appointment System</h1>
-            <nav>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="booking.html">Book Appointment</a></li>
-                    <li><a href="#" id="logout">Logout</a></li>
-                </ul>
-            </nav>
-        </div>
+      <div class="container">
+        <h1>Heal Appointment System</h1>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="dashboard.html">Dashboard</a></li>
+            <li><a href="booking.html">Book Appointment</a></li>
+            <li><a href="#" id="logout">Logout</a></li>
+          </ul>
+        </nav>
+        <h2>Your Appointment</h2>
+
+        <div class="card" id="data"></div>
+      </div>
     </header>
 
     <main>
-        <section class="dashboard">
-            <div class="container">
-                <div class="panel">
-                    <div class="dashboard-intro">
-                        <span class="eyebrow">Patient Dashboard</span>
-                        <h2>Your appointments</h2>
-                        <p class="dashboard-copy">Review everything you have booked so far and add a new appointment whenever you need it.</p>
-                    </div>
-                    <div id="appointmentsList">
-                        <!-- Appointments will be loaded here -->
-                    </div>
-                    <div class="dashboard-actions">
-                        <a href="booking.html" class="btn-primary">Book New Appointment</a>
-                    </div>
-                </div>
+      <section class="dashboard">
+        <div class="container">
+          <div class="panel">
+            <div class="dashboard-intro">
+              <span class="eyebrow">Patient Dashboard</span>
+              <h2>Your appointments</h2>
+              <p class="dashboard-copy">
+                Review everything you have booked so far and add a new
+                appointment whenever you need it.
+              </p>
             </div>
-        </section>
+            <div id="appointmentsList">
+              <!-- Appointments will be loaded here -->
+            </div>
+            <div class="dashboard-actions">
+              <a href="booking.html" class="btn-primary"
+                >Book New Appointment</a
+              >
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer>
-        <div class="container">
-            <p>&copy; 2026 Heal Appointment System. All rights reserved.</p>
-        </div>
+      <div class="container">
+        <p>&copy; 2026 Heal Appointment System. All rights reserved.</p>
+      </div>
     </footer>
 
     <script src="script.js"></script>
-</body>
+  </body>
 </html>

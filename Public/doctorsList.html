@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doctors Directory - Heal Appointment System</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Heal Appointment System</h1>
+        <nav>
+          <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="login.html">Login</a></li>
+            <li><a href="register.html">Register</a></li>
+            <li><a href="booking.html">Book Appointment</a></li>
+            <li><a href="doctorsList.html">View Doctors</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="doctors-directory">
+        <div class="container">
+          <div class="directory-shell">
+            <div class="directory-intro">
+              <span class="eyebrow">Doctor Directory</span>
+              <h2>Find the right doctor before you book.</h2>
+              <p class="directory-copy">
+                Explore specialists, compare availability, and open each profile
+                to see focus areas, languages, clinic schedules, and patient
+                support details.
+              </p>
+
+              <div class="directory-actions">
+                <a href="booking.html" class="btn-primary">Book Appointment</a>
+                <a href="#doctorDirectory" class="btn-secondary"
+                  >Browse Doctors</a
+                >
+              </div>
+
+              <div class="doctor-overview">
+                <div class="stat-box">
+                  <span>Available doctors</span>
+                  <strong>6 specialists</strong>
+                </div>
+                <div class="stat-box">
+                  <span>Clinic support</span>
+                  <strong>Mon to Sat</strong>
+                </div>
+              </div>
+            </div>
+
+            <aside class="detail-panel" id="doctorDetailCard">
+              <span class="detail-badge" id="doctorDetailTag"
+                >Featured Doctor</span
+              >
+              <h3 id="doctorDetailName">Dr. Amelia Hart</h3>
+              <p class="detail-role" id="doctorDetailSpecialty">
+                Senior Cardiologist
+              </p>
+              <p class="detail-bio" id="doctorDetailBio">
+                Personalized heart care focused on prevention, monitoring, and
+                long-term recovery planning.
+              </p>
+
+              <div class="detail-stats">
+                <div class="detail-stat">
+                  <span>Experience</span>
+                  <strong id="doctorDetailExperience">12 years</strong>
+                </div>
+                <div class="detail-stat">
+                  <span>Availability</span>
+                  <strong id="doctorDetailAvailability">Mon, Wed, Fri</strong>
+                </div>
+                <div class="detail-stat">
+                  <span>Languages</span>
+                  <strong id="doctorDetailLanguages">English, Arabic</strong>
+                </div>
+                <div class="detail-stat">
+                  <span>Consultation</span>
+                  <strong id="doctorDetailConsultation"
+                    >In-person & video</strong
+                  >
+                </div>
+              </div>
+
+              <div class="detail-section">
+                <h4>Focus areas</h4>
+                <ul id="doctorDetailFocus"></ul>
+              </div>
+
+              <div class="detail-section">
+                <h4>Why patients choose this doctor</h4>
+                <p id="doctorDetailHighlight"></p>
+              </div>
+            </aside>
+          </div>
+
+          <div class="panel directory-panel" id="doctorDirectory">
+            <div class="directory-toolbar">
+              <div>
+                <span class="eyebrow">Browse Team</span>
+                <h3 class="section-title">
+                  Doctors ready to support your care
+                </h3>
+              </div>
+
+              <div class="directory-filters">
+                <div class="form-group">
+                  <label for="doctorSearch">Search doctor or specialty</label>
+                  <input
+                    type="search"
+                    id="doctorSearch"
+                    placeholder="Try cardiology, pediatrics, Dr. Olivia..."
+                  />
+                </div>
+
+                <div class="form-group">
+                  <label for="specialtyFilter">Filter by specialty</label>
+                  <select id="specialtyFilter">
+                    <option value="all">All specialties</option>
+                    <option value="Cardiology">Cardiology</option>
+                    <option value="Dermatology">Dermatology</option>
+                    <option value="Neurology">Neurology</option>
+                    <option value="Pediatrics">Pediatrics</option>
+                    <option value="Psychology">Psychology</option>
+                    <option value="General Practice">General Practice</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="doctor-card-grid" id="doctorCards">
+              <!-- Doctor cards injected by script.js -->
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">
+        <p>&copy; 2026 Heal Appointment System. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
