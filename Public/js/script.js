@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           alert("Login successful! Redirecting to dashboard...");
-          window.location.href = "dashboard.html";
+          window.location.href = "/dashboard";
         } catch (error) {
           console.error("Login error:", error);
           alert(
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           alert("Registration successful! Please login.");
-          window.location.href = "login.html";
+          window.location.href = "/login";
         } catch (error) {
           console.error("Registration error:", error);
           alert(
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("appointments", JSON.stringify(appointments));
 
         alert("Appointment booked successfully!");
-        window.location.href = "dashboard.html";
+        window.location.href = "/dashboard";
       } else {
         alert("Please fill all fields.");
       }
@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", function () {
     logoutBtn.addEventListener("click", function (e) {
       e.preventDefault();
       alert("Logged out successfully.");
-      window.location.href = "index.html";
+      window.location.href = "/";
     });
   }
 
@@ -439,3 +439,25 @@ function loadBookingSummary() {
     bookingCard.innerHTML = "No booking yet";
   }
 }
+// dynamic Navbar
+
+fetch("/api/check-auth")
+  .then((res) => res.json())
+  .then((data) => {
+    const nav = document.getElementById("navbar");
+
+    if (data.user) {
+      nav.innerHTML = `
+          <a href="/">Home</a>
+          <a href="/dashboard">Dashboard</a>
+          <a href="/booking">Book Appointment</a>
+          <a href="/logout">Logout</a>
+        `;
+    } else {
+      nav.innerHTML = `
+          <a href="/">Home</a>
+          <a href="/login">Login</a>
+          <a href="/register">Register</a>
+        `;
+    }
+  });
