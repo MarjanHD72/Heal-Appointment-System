@@ -96,5 +96,3 @@ function saveBooking() {
 
 /* Run on load */
 window.onload = loadDoctors;
-
-
