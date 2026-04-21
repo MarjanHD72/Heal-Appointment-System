@@ -20,11 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             credentials: "include",
             body: JSON.stringify({
-              firstName,
-              lastName,
               email,
               password,
-              nhsNumber,
             }),
           });
 
