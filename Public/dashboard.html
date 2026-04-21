@@ -13,16 +13,16 @@
   <body>
     <header>
       <div class="container">
-        <h1>Heal Appointment System</h1>
-        <nav>
+        <h1 class="Heal-A-S">Heal Appointment System</h1>
+        <nav id="navbar">
           <ul>
-            <li><a href="index.html">Home</a></li>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="booking.html">Book Appointment</a></li>
-            <li><a href="#" id="logout">Logout</a></li>
+            <li><a href="/">Home</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/booking">Book Appointment</a></li>
+            <li><a href="/logout" id="logout">Logout</a></li>
           </ul>
         </nav>
-        <h2>Your Appointment</h2>
+        <h4 class="your-appointment">Your Appointment :</h4>
 
         <div class="card" id="data"></div>
       </div>
@@ -44,9 +44,7 @@
               <!-- Appointments will be loaded here -->
             </div>
             <div class="dashboard-actions">
-              <a href="booking.html" class="btn-primary"
-                >Book New Appointment</a
-              >
+              <a href="/booking" class="btn-primary">Book New Appointment</a>
             </div>
           </div>
         </div>
