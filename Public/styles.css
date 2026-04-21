@@ -43,6 +43,13 @@ body {
     linear-gradient(180deg, #f8fef9 0%, var(--bg) 52%, #eef8f2 100%);
   min-height: 100vh;
 }
+.Heal-A-S {
+  color: #5f7469;
+
+  font-weight: bolder;
+  font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  text-decoration: underline;
+}
 
 a {
   color: inherit;
