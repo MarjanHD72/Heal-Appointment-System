@@ -38,8 +38,6 @@ async function sendWebhook(email) {
 }
 
 async function startServer() {
-
-
   app.post("/api/register", async (req, res) => {
     const { firstName, lastName, email, password, nhsNumber } = req.body;
     console.log("DATA RECEIVED:", req.body);
@@ -67,7 +65,33 @@ async function startServer() {
     }
   });
 
-  app.post("/api/login", async (req, res) => {});
+  app.post("/api/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+      const user = await User.findOne({ email });
+
+      if (!user) {
+        return res.status(400).json({ message: "User not found" });
+      }
+
+      if (user.password !== password) {
+        return res.status(400).json({ message: "Incorrect password" });
+      }
+
+      // ذخیره در session
+      req.session.user = {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+      };
+
+      res.json({ message: "Login successful", user: req.session.user });
+    } catch (err) {
+      console.log(err);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
 
   app.get("/api/me", (req, res) => {
     if (!req.session.user) {
