@@ -1,4 +1,18 @@
+const healthTips = [
+  "💧 Drink at least 2 litres of water daily.",
+  "🚶 Take a short walk after meals to improve digestion.",
+  "😴 Aim for 7–8 hours of quality sleep.",
+  "🥗 Eat more fruits and vegetables every day.",
+  "🧘 Practice deep breathing to reduce stress.",
+  "📵 Avoid screens 30 minutes before sleep.",
+  "🏃 Stay active for at least 30 minutes a day.",
+  "🧂 Reduce salt intake to maintain healthy blood pressure.",
+];
+
 document.addEventListener("DOMContentLoaded", function () {
+  // Health Tips
+
+  getHealthTip();
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -497,4 +511,16 @@ if (bookingBtn) {
       console.error(err);
     }
   });
+}
+// health Tips Function
+function getHealthTip() {
+  const quoteEl = document.getElementById("quote");
+
+  if (!quoteEl) return;
+
+  const randomIndex = Math.floor(Math.random() * healthTips.length);
+  const tip = healthTips[randomIndex];
+
+  quoteEl.innerHTML = `<div style="font-weight:600;"></div>
+     <div style="margin-top:6px;">${tip}</div>`;
 }

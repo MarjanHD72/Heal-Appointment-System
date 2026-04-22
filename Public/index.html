@@ -19,8 +19,12 @@
             <li><a href="index.html">Home</a></li>
             <li id="navLogin"><a href="login.html">Login</a></li>
             <li id="navRegister"><a href="register.html">Register</a></li>
-            <li id="navDashboard" hidden><a href="dashboard.html">Dashboard</a></li>
-            <li id="navBooking" hidden><a href="booking.html">Book Appointment</a></li>
+            <li id="navDashboard" hidden>
+              <a href="dashboard.html">Dashboard</a>
+            </li>
+            <li id="navBooking" hidden>
+              <a href="booking.html">Book Appointment</a>
+            </li>
             <li id="navLogout" hidden><a href="#" id="logout">Logout</a></li>
           </ul>
         </nav>
@@ -43,7 +47,10 @@
                 <a href="#" id="bookingBtn" class="btn-primary"
                   >Book an Appointment</a
                 >
-                <a href="register.html" id="createAccountBtn" class="btn-secondary"
+                <a
+                  href="register.html"
+                  id="createAccountBtn"
+                  class="btn-secondary"
                   >Create Account</a
                 >
                 <a href="doctorsList.html" class="btn-secondary"
@@ -75,12 +82,12 @@
                 <span>Designed for</span>
                 <strong>Patients & clinics</strong>
               </div>
-              <div class="trust-card">
-                <strong>Why green?</strong>
-                <p>
-                  The visual system is tuned for a softer healthcare feel:
-                  trustworthy, calm, and easy on the eyes.
-                </p>
+              <div class="stat-box">
+                <strong>💚Today's Health Tip💚</strong>
+                <p id="quote">Loading tip...</p>
+                <button class="btn-primary" onclick="getHealthTip()">
+                  New Tip
+                </button>
               </div>
             </div>
           </div>
@@ -114,32 +121,6 @@
             <div class="feature">
               <h4>Clean dashboard</h4>
               <p>See your appointments in a simple card-based overview.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="trust-strip">
-        <div class="container">
-          <div class="trust-grid">
-            <div class="trust-card">
-              <strong>Simple forms</strong>
-              <p>
-                Focused inputs help reduce friction during sign up and booking.
-              </p>
-            </div>
-            <div class="trust-card">
-              <strong>Modern styling</strong>
-              <p>
-                Soft gradients and layered cards give the project a polished
-                finish.
-              </p>
-            </div>
-            <div class="trust-card">
-              <strong>Consistent branding</strong>
-              <p>
-                The full app now follows the same green personalized identity.
-              </p>
             </div>
           </div>
         </div>
