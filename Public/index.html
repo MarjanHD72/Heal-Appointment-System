@@ -17,9 +17,11 @@
         <nav>
           <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="login.html">Login</a></li>
-            <li><a href="register.html">Register</a></li>
-            <li><a href="booking.html">Book Appointment</a></li>
+            <li id="navLogin"><a href="login.html">Login</a></li>
+            <li id="navRegister"><a href="register.html">Register</a></li>
+            <li id="navDashboard" hidden><a href="dashboard.html">Dashboard</a></li>
+            <li id="navBooking" hidden><a href="booking.html">Book Appointment</a></li>
+            <li id="navLogout" hidden><a href="#" id="logout">Logout</a></li>
           </ul>
         </nav>
       </div>
@@ -38,8 +40,12 @@
                 experience designed to feel more human.
               </p>
               <div class="hero-actions">
-                <a href="booking.html" class="btn-primary">Book Appointment</a>
-                <a href="register.html" class="btn-secondary">Create Account</a>
+                <a href="#" id="bookingBtn" class="btn-primary"
+                  >Book an Appointment</a
+                >
+                <a href="register.html" id="createAccountBtn" class="btn-secondary"
+                  >Create Account</a
+                >
                 <a href="doctorsList.html" class="btn-secondary"
                   >View Doctors</a
                 >
