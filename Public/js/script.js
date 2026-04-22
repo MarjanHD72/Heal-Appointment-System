@@ -1,49 +1,34 @@
-// script.js - JavaScript for Heal Appointment System
-
 document.addEventListener("DOMContentLoaded", function () {
-  const apiBaseUrl =
-    window.location.port === "3000" ? "" : "http://localhost:3000";
-
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      if (validateEmail(email) && password.length >= 6) {
-        try {
-          const response = await fetch(`${apiBaseUrl}/api/login`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            credentials: "include",
-            body: JSON.stringify({
-              email,
-              password,
-            }),
-          });
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        });
 
-          const result = await response.json();
+        const data = await res.json();
 
-          if (!response.ok) {
-            alert(result.message || "Login failed.");
-            return;
-          }
-
-          alert("Login successful! Redirecting to dashboard...");
-          window.location.href = "/dashboard";
-        } catch (error) {
-          console.error("Login error:", error);
-          alert(
-            "Could not connect to the server. Make sure server.js is running on port 3000.",
-          );
+        if (res.ok) {
+          alert("Login successful!");
+          window.location.href = "dashboard.html";
+        } else {
+          alert(data.message || "Login failed");
         }
-        return;
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
       }
-
-      alert("Please enter valid email and password (min 6 characters).");
     });
   }
 
@@ -51,6 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (registerForm) {
     registerForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const firstName = document.getElementById("firstName").value;
       const lastName = document.getElementById("lastName").value;
       const email = document.getElementById("email").value;
@@ -59,49 +45,44 @@ document.addEventListener("DOMContentLoaded", function () {
       const nhsNumber = document.getElementById("nhsNumber").value;
 
       if (
-        firstName &&
-        lastName &&
-        validateEmail(email) &&
-        password.length >= 6 &&
-        password === confirmPassword &&
-        nhsNumber
+        !firstName ||
+        !lastName ||
+        !validateEmail(email) ||
+        password.length < 6 ||
+        password !== confirmPassword ||
+        !nhsNumber
       ) {
-        try {
-          const response = await fetch(`${apiBaseUrl}/api/register`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              firstName,
-              lastName,
-              email,
-              password,
-              nhsNumber,
-            }),
-          });
-
-          const result = await response.json();
-
-          if (!response.ok) {
-            alert(result.message || "Registration failed.");
-            return;
-          }
-
-          alert("Registration successful! Please login.");
-          window.location.href = "/login";
-        } catch (error) {
-          console.error("Registration error:", error);
-          alert(
-            "Could not connect to the server. Make sure server.js is running on port 3000.",
-          );
-        }
+        alert("Please fill all fields correctly.");
         return;
       }
 
-      alert(
-        "Please fill all fields correctly. Password must be at least 6 characters and match confirmation.",
-      );
+      try {
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            password,
+            nhsNumber,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          alert("Registration successful!");
+          window.location.href = "login.html";
+        } else {
+          alert(data.message || "Registration failed");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Something went wrong");
+      }
     });
   }
 
@@ -109,6 +90,7 @@ document.addEventListener("DOMContentLoaded", function () {
   if (bookingForm) {
     bookingForm.addEventListener("submit", function (e) {
       e.preventDefault();
+
       const appointmentType = document.getElementById("appointmentType").value;
       const date = document.getElementById("date").value;
       const time = document.getElementById("time").value;
@@ -130,7 +112,7 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem("appointments", JSON.stringify(appointments));
 
         alert("Appointment booked successfully!");
-        window.location.href = "/dashboard";
+        window.location.href = "dashboard.html";
       } else {
         alert("Please fill all fields.");
       }
@@ -147,15 +129,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const logoutBtn = document.getElementById("logout");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function (e) {
+    logoutBtn.addEventListener("click", async function (e) {
       e.preventDefault();
+
+      try {
+        await fetch("/api/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (err) {
+        console.error(err);
+      }
+
       alert("Logged out successfully.");
-      window.location.href = "/";
+      window.location.href = "index.html";
     });
   }
 
   loadBookingSummary();
+  checkLogin();
 });
+
+function setElementVisibility(elementId, isVisible) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.hidden = !isVisible;
+    element.style.display = isVisible ? "" : "none";
+  }
+}
+
+function updateNavigation(isLoggedIn) {
+  setElementVisibility("navLogin", !isLoggedIn);
+  setElementVisibility("navRegister", !isLoggedIn);
+  setElementVisibility("navDashboard", isLoggedIn);
+  setElementVisibility("navBooking", isLoggedIn);
+  setElementVisibility("navLogout", isLoggedIn);
+  setElementVisibility("createAccountBtn", !isLoggedIn);
+}
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -173,6 +183,7 @@ function loadAppointments() {
   }
 
   let html = '<div class="appointment-grid">';
+
   appointments.forEach((appointment) => {
     const appointmentLabels = {
       gp: "GP Consultation",
@@ -188,6 +199,7 @@ function loadAppointments() {
       </article>
     `;
   });
+
   html += "</div>";
   appointmentsList.innerHTML = html;
 }
@@ -394,7 +406,6 @@ function initializeDoctorsDirectory() {
     const activeDoctor = filteredDoctors.find(
       (doctor) => doctor.id === activeDoctorId,
     );
-
     if (activeDoctor) {
       renderDoctorDetails(activeDoctor);
     }
@@ -416,13 +427,11 @@ function initializeDoctorsDirectory() {
 
   searchInput.addEventListener("input", renderDoctorCards);
   specialtyFilter.addEventListener("change", renderDoctorCards);
-
   renderDoctorCards();
 }
 
 function loadBookingSummary() {
   const bookingCard = document.getElementById("data");
-
   if (!bookingCard) {
     return;
   }
@@ -439,25 +448,53 @@ function loadBookingSummary() {
     bookingCard.innerHTML = "No booking yet";
   }
 }
-// dynamic Navbar
 
-fetch("/api/check-auth")
-  .then((res) => res.json())
-  .then((data) => {
-    const nav = document.getElementById("navbar");
+async function checkLogin() {
+  try {
+    const res = await fetch("/api/me", {
+      credentials: "include",
+    });
 
-    if (data.user) {
-      nav.innerHTML = `
-          <a href="/">Home</a>
-          <a href="/dashboard">Dashboard</a>
-          <a href="/booking">Book Appointment</a>
-          <a href="/logout">Logout</a>
-        `;
+    if (res.ok) {
+      const user = await res.json();
+      console.log("Logged in:", user);
+      updateNavigation(true);
     } else {
-      nav.innerHTML = `
-          <a href="/">Home</a>
-          <a href="/login">Login</a>
-          <a href="/register">Register</a>
-        `;
+      console.log("Not logged in");
+      updateNavigation(false);
+
+      if (
+        window.location.pathname.includes("dashboard.html") ||
+        window.location.pathname.includes("booking.html")
+      ) {
+        window.location.href = "login.html";
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    updateNavigation(false);
+  }
+}
+
+// book an appointment btn event
+const bookingBtn = document.getElementById("bookingBtn");
+if (bookingBtn) {
+  bookingBtn.addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    console.log("clicked");
+    try {
+      const res = await fetch("/api/me", {
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        window.location.href = "booking.html";
+      } else {
+        window.location.href = "login.html";
+      }
+    } catch (err) {
+      console.error(err);
     }
   });
+}
