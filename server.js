@@ -1,4 +1,5 @@
-﻿const express = require("express");
+﻿require("dotenv").config();
+const express = require("express");
 const session = require("express-session");
 const path = require("path");
 const axios = require("axios");
@@ -8,10 +9,11 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const Appointment = require("./models/Appointment");
 //connect to mongoDb
+const MONGO_URI =
+  process.env.MONGO_URI
+
 mongoose
-  .connect(
-    "mongodb+srv://marjanhaghighat027_db_user:HealAppointment@cluster0.yajswxy.mongodb.net/",
-  )
+  .connect(MONGO_URI)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.log(err));
 // end of connect to mongoDb
@@ -221,7 +223,7 @@ app.delete("/api/appointments/:id", async (req, res) => {
   try {
     const appointment = await Appointment.findOne({
       _id: appointmentId,
-      userId: req.session.user.id, 
+      userId: req.session.user.id,
     });
 
     if (!appointment) {
