@@ -8,6 +8,48 @@ const healthTips = [
   "🏃 Stay active for at least 30 minutes a day.",
   "🧂 Reduce salt intake to maintain healthy blood pressure.",
 ];
+// Messages color Codes
+const greenTheme = {
+  confirmButtonColor: "#2e7d5b",
+  cancelButtonColor: "#b0bec5",
+  background: "#f4f9f7",
+  color: "#1b4332",
+};
+
+// B. Helper functions
+async function showSuccess(message) {
+  return await Swal.fire({
+    ...greenTheme,
+    icon: "success",
+    title: "Done",
+    text: message,
+  });
+}
+
+function showError(message) {
+  Swal.fire({
+    icon: "error",
+    title: "Something went wrong",
+    text: message,
+    confirmButtonColor: "#2e7d5b",
+    background: "#e6f4ea",
+    color: "#1b4332",
+    showClass: {
+      popup: "animate__animated animate__shakeX",
+    },
+  });
+}
+
+async function showConfirm(message) {
+  return await Swal.fire({
+    ...greenTheme,
+    title: message,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+  });
+}
 
 document.addEventListener("DOMContentLoaded", function () {
   // Health Tips
@@ -34,14 +76,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const data = await res.json();
 
         if (res.ok) {
-          alert("Login successful!");
+          await showSuccess("Login successful! 🌿");
           window.location.href = "dashboard.html";
         } else {
-          alert(data.message || "Login failed");
+          showError(data.message || "Login failed");
         }
       } catch (err) {
         console.error(err);
-        alert("Something went wrong");
+        showError("Something went wrong");
       }
     });
   }
@@ -66,7 +108,8 @@ document.addEventListener("DOMContentLoaded", function () {
         password !== confirmPassword ||
         !nhsNumber
       ) {
-        alert("Please fill all fields correctly.");
+        showError("Please fill all fields correctly.");
+
         return;
       }
 
@@ -88,14 +131,15 @@ document.addEventListener("DOMContentLoaded", function () {
         const data = await res.json();
 
         if (res.ok) {
-          alert("Registration successful!");
+          await showSuccess("Registration successful! 🌿");
+
           window.location.href = "login.html";
         } else {
-          alert(data.message || "Registration failed");
+          showError(data.message || "Registration failed");
         }
       } catch (err) {
         console.error(err);
-        alert("Something went wrong");
+        showError("Something went wrong");
       }
     });
   }
@@ -125,14 +169,14 @@ document.addEventListener("DOMContentLoaded", function () {
             }),
           });
 
-          alert("Appointment booked successfully!");
+          await showSuccess("Appointment booked successfully 🌿");
           window.location.href = "dashboard.html";
         } catch (err) {
           console.error(err);
-          alert("Error booking appointment");
+          showError("Something went wrong");
         }
       } else {
-        alert("Please fill all fields.");
+        showError("Please fill all fields.");
       }
     });
   }
@@ -158,8 +202,8 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch (err) {
         console.error(err);
       }
+      await showSuccess("Logged out successfully. 🌿");
 
-      alert("Logged out successfully.");
       window.location.href = "index.html";
     });
   }
@@ -538,11 +582,9 @@ function getHealthTip() {
 }
 // Cancel Appointment (Delete Appointment)
 async function deleteAppointment(id) {
-  const confirmDelete = confirm(
-    "Are you sure you want to cancel this appointment?",
-  );
+  const result = await showConfirm("Do you want to Cancel this appointment?");
 
-  if (!confirmDelete) return;
+  if (!result.isConfirmed) return;
 
   try {
     await fetch(`/api/appointments/${id}`, {
@@ -550,11 +592,11 @@ async function deleteAppointment(id) {
       credentials: "include",
     });
 
-    alert("Appointment cancelled");
+    await showSuccess("Appointment Cancelled successfully 🌿");
 
     loadAppointments(); // refresh list
   } catch (err) {
     console.error(err);
-    alert("Error cancelling appointment");
+    showError("Something went wrong");
   }
 }
