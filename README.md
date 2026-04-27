@@ -39,7 +39,7 @@ Each user can only see their own appointments (data isolation implemented).
 ## ⚙️ Installation
 
 ```bash
-git clone https://github.com/your-username/heal-appointment-system.git
+git clone https://github.com/MarjanHD72/heal-appointment-system.git
 cd heal-appointment-system
 npm install
 node server.js
