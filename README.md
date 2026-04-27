@@ -48,7 +48,7 @@ then open http://localhost:3000
 
 🌐 Live Demo
 
-👉 https://heal-appointment-system.onrender.com
+👉 [https://heal-appointment-system.onrender.com](https://heal-appointment-system.onrender.com)
 
 🎯 What I Learned
 Managing user sessions and authentication
