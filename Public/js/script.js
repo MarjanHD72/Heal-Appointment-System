@@ -210,12 +210,16 @@ async function loadAppointments() {
 
     appointments.forEach((appointment) => {
       html += `
-        <article class="appointment-card">
-          <span class="appointment-meta">${appointment.date}</span>
-          <h3>${appointment.title}</h3>
-          <p>${appointment.notes}</p>
-        </article>
-      `;
+    <article class="appointment-card">
+      <span class="appointment-meta">${appointment.date}</span>
+      <h3>${appointment.title}</h3>
+      <p>${appointment.notes}</p>
+
+      <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">
+        Cancel your Appointment
+      </button>
+    </article>
+  `;
     });
 
     html += "</div>";
@@ -531,4 +535,26 @@ function getHealthTip() {
 
   quoteEl.innerHTML = `<div style="font-weight:600;"></div>
      <div style="margin-top:6px;">${tip}</div>`;
+}
+// Cancel Appointment (Delete Appointment)
+async function deleteAppointment(id) {
+  const confirmDelete = confirm(
+    "Are you sure you want to cancel this appointment?",
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    await fetch(`/api/appointments/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    alert("Appointment cancelled");
+
+    loadAppointments(); // refresh list
+  } catch (err) {
+    console.error(err);
+    alert("Error cancelling appointment");
+  }
 }

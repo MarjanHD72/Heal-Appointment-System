@@ -210,3 +210,29 @@ app.get("/api/appointments", async (req, res) => {
     res.status(500).json({ message: "Error fetching appointments" });
   }
 });
+// Cancel Appointment API
+app.delete("/api/appointments/:id", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  const appointmentId = req.params.id;
+
+  try {
+    const appointment = await Appointment.findOne({
+      _id: appointmentId,
+      userId: req.session.user.id, 
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    await Appointment.deleteOne({ _id: appointmentId });
+
+    res.json({ message: "Appointment cancelled" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error deleting appointment" });
+  }
+});
