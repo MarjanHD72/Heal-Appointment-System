@@ -102,7 +102,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const bookingForm = document.getElementById("bookingForm");
   if (bookingForm) {
-    bookingForm.addEventListener("submit", function (e) {
+    bookingForm.addEventListener("submit", async function (e) {
       e.preventDefault();
 
       const appointmentType = document.getElementById("appointmentType").value;
@@ -111,22 +111,26 @@ document.addEventListener("DOMContentLoaded", function () {
       const reason = document.getElementById("reason").value;
 
       if (appointmentType && date && time && reason) {
-        const appointment = {
-          type: appointmentType,
-          date,
-          time,
-          reason,
-          id: Date.now(),
-        };
+        try {
+          await fetch("/api/appointments", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              title: appointmentType,
+              date: date + " at " + time,
+              notes: reason,
+            }),
+          });
 
-        const appointments = JSON.parse(
-          localStorage.getItem("appointments") || "[]",
-        );
-        appointments.push(appointment);
-        localStorage.setItem("appointments", JSON.stringify(appointments));
-
-        alert("Appointment booked successfully!");
-        window.location.href = "dashboard.html";
+          alert("Appointment booked successfully!");
+          window.location.href = "dashboard.html";
+        } catch (err) {
+          console.error(err);
+          alert("Error booking appointment");
+        }
       } else {
         alert("Please fill all fields.");
       }
@@ -186,36 +190,40 @@ function validateEmail(email) {
   return re.test(email);
 }
 
-function loadAppointments() {
+async function loadAppointments() {
   const appointmentsList = document.getElementById("appointmentsList");
-  const appointments = JSON.parse(localStorage.getItem("appointments") || "[]");
 
-  if (appointments.length === 0) {
-    appointmentsList.innerHTML =
-      '<p class="empty-state">No appointments booked yet. Your upcoming visits will appear here after you make a booking.</p>';
-    return;
+  try {
+    const res = await fetch("/api/appointments", {
+      credentials: "include",
+    });
+
+    const appointments = await res.json();
+
+    if (appointments.length === 0) {
+      appointmentsList.innerHTML =
+        '<p class="empty-state">No appointments booked yet.</p>';
+      return;
+    }
+
+    let html = '<div class="appointment-grid">';
+
+    appointments.forEach((appointment) => {
+      html += `
+        <article class="appointment-card">
+          <span class="appointment-meta">${appointment.date}</span>
+          <h3>${appointment.title}</h3>
+          <p>${appointment.notes}</p>
+        </article>
+      `;
+    });
+
+    html += "</div>";
+    appointmentsList.innerHTML = html;
+  } catch (err) {
+    console.error(err);
+    appointmentsList.innerHTML = "<p>Error loading appointments</p>";
   }
-
-  let html = '<div class="appointment-grid">';
-
-  appointments.forEach((appointment) => {
-    const appointmentLabels = {
-      gp: "GP Consultation",
-      nurse: "Nurse Visit",
-      specialist: "Specialist Referral",
-    };
-
-    html += `
-      <article class="appointment-card">
-        <span class="appointment-meta">${appointment.date} at ${appointment.time}</span>
-        <h3>${appointmentLabels[appointment.type] || appointment.type}</h3>
-        <p>${appointment.reason}</p>
-      </article>
-    `;
-  });
-
-  html += "</div>";
-  appointmentsList.innerHTML = html;
 }
 
 function initializeDoctorsDirectory() {

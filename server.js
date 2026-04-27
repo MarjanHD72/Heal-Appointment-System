@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const app = express();
 const PORT = process.env.PORT || 3000;
+const Appointment = require("./models/Appointment");
 //connect to mongoDb
 mongoose
   .connect(
@@ -167,3 +168,45 @@ async function sendWebhook(email) {
     console.log("Error sending to n8n:", error.message);
   }
 }
+// Appointment API
+
+app.post("/api/appointments", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  const { title, date, notes } = req.body;
+
+  try {
+    const newAppointment = new Appointment({
+      title,
+      date,
+      notes,
+      userId: req.session.user.id,
+    });
+
+    await newAppointment.save();
+
+    res.json({ message: "Appointment created" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error creating appointment" });
+  }
+});
+
+app.get("/api/appointments", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  try {
+    const appointments = await Appointment.find({
+      userId: req.session.user.id,
+    }).sort({ date: -1 });
+
+    res.json(appointments);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error fetching appointments" });
+  }
+});
