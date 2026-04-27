@@ -49,6 +49,9 @@ then open http://localhost:3000
 🌐 Live Demo
 
 👉 [https://heal-appointment-system.onrender.com](https://heal-appointment-system.onrender.com)
+👤Test User:
+username: testuser01@gmail.com
+password: 123456789
 
 🎯 What I Learned
 Managing user sessions and authentication
