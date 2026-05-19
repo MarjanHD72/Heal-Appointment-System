@@ -1,8 +1,24 @@
+﻿require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
-const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
+const axios = require("axios");
+const mongoose = require("mongoose");
+const User = require("./models/User");
 const app = express();
+const PORT = process.env.PORT || 3000;
+const Appointment = require("./models/Appointment");
+//connect to mongoDb
+const MONGO_URI =
+  process.env.MONGO_URI
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.log(err));
+// end of connect to mongoDb
+
+// middleware
 <<<<<<< Updated upstream
 =======
 const PORT = process.env.PORT || 3000;
@@ -24,65 +40,51 @@ app.use(
     secret: "my-secret-key",
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: false,
+    },
   }),
 );
-const PORT = process.env.PORT || 3000;
+// end of middleware
 
-// Serve static files from the Public directory
-app.use(express.static(path.join(__dirname, "Public")));
+//  Auth Middleware
 
-// Database
-const db = new sqlite3.Database("./database.db");
-
-db.serialize(() => {
-  db.run(`
-    CREATE TABLE IF NOT EXISTS users (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT UNIQUE,
-      password TEXT
-    )
-  `);
-});
-// Register API
-app.post("/api/register", (req, res) => {
-  const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ message: "Email and password required" });
+function isAuthenticated(req, res, next) {
+  if (req.session.user) {
+    next();
+  } else {
+    res.redirect("/login");
   }
+}
 
-  db.run(
-    "INSERT INTO users (email, password) VALUES (?, ?)",
-    [email, password],
-    function (err) {
-      if (err) {
-        return res.status(400).json({ message: "User already exists" });
-      }
-
-      res.json({ message: "User registered successfully" });
-    },
-  );
-});
-// Login API
-app.post("/api/login", (req, res) => {
+// API routes
+app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
 
-  db.get(
-    "SELECT * FROM users WHERE email = ? AND password = ?",
-    [email, password],
-    (err, user) => {
-      if (!user) {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
+  try {
+    const user = await User.findOne({ email });
 
-      req.session.user = user;
+    if (!user) {
+      return res.status(400).json({ message: "User not found" });
+    }
 
-      res.json({ message: "Logged in successfully", user });
-    },
-  );
+    if (user.password !== password) {
+      return res.status(400).json({ message: "Incorrect password" });
+    }
+
+    //  save in session
+    req.session.user = {
+      id: user._id,
+      email: user.email,
+      firstName: user.firstName,
+    };
+
+    res.json({ message: "Login successful", user: req.session.user });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
 });
-
-// check user login
 app.get("/api/me", (req, res) => {
   if (!req.session.user) {
     return res.status(401).json({ message: "Not logged in" });
@@ -90,15 +92,166 @@ app.get("/api/me", (req, res) => {
 
   res.json(req.session.user);
 });
-app.post("/api/logout", (req, res) => {
-  req.session.destroy();
-  res.json({ message: "Logged out" });
+app.get("/api/check-auth", (req, res) => {
+  if (req.session.user) {
+    res.json({
+      loggedIn: true,
+      user: req.session.user,
+    });
+  } else {
+    res.json({
+      loggedIn: false,
+    });
+  }
 });
-// Start the server
+
+app.post("/api/register", async (req, res) => {
+  const { firstName, lastName, email, password, nhsNumber } = req.body;
+  console.log("DATA RECEIVED:", req.body);
+
+  try {
+    const user = await User.create({
+      firstName,
+      lastName,
+      email,
+      password,
+      nhsNumber,
+    });
+
+    console.log("USER SAVED:", user);
+    await sendWebhook(email);
+
+    res.json({ message: "User registered", user });
+  } catch (err) {
+    console.log(err);
+
+    if (err.code === 11000) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    res.status(500).json({ message: "Error creating user" });
+  }
+});
+
+app.post("/api/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.json({ message: "Logged out" });
+  });
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
+});
+// end of API routes
+
+// Route pages
+// Public pages
+app.get("/login", (req, res) => {
+  res.sendFile(path.join(__dirname, "Public/login.html"));
+});
+
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "Public/register.html"));
+});
+
+// Protected pages
+app.get("/dashboard", isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "Public/dashboard.html"));
+});
+
+app.get("/booking", isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, "Public/booking.html"));
+});
+
+// Static Files
+app.use(express.static(path.join(__dirname, "Public")));
+
+// Start Server
 app.listen(PORT, () => {
-  console.log(
-    `NHS Booking System server is running on http://localhost:${PORT}`,
-  );
+  console.log(`Server running on http://localhost:${PORT}`);
+});
+
+// Webhook (n8n)
+async function sendWebhook(email) {
+  try {
+    await axios.post("https://marjanhd.app.n8n.cloud/webhook/test-user", {
+      name: email,
+      email,
+    });
+    console.log("Webhook sent to n8n");
+  } catch (error) {
+    console.log("Error sending to n8n:", error.message);
+  }
+}
+// Appointment API
+
+app.post("/api/appointments", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  const { title, date, notes } = req.body;
+
+  try {
+    const newAppointment = new Appointment({
+      title,
+      date,
+      notes,
+      userId: req.session.user.id,
+    });
+
+    await newAppointment.save();
+
+    res.json({ message: "Appointment created" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error creating appointment" });
+  }
+});
+
+app.get("/api/appointments", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  try {
+    const appointments = await Appointment.find({
+      userId: req.session.user.id,
+    }).sort({ date: -1 });
+
+    res.json(appointments);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error fetching appointments" });
+  }
+});
+// Cancel Appointment API
+app.delete("/api/appointments/:id", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  const appointmentId = req.params.id;
+
+  try {
+    const appointment = await Appointment.findOne({
+      _id: appointmentId,
+      userId: req.session.user.id,
+    });
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    await Appointment.deleteOne({ _id: appointmentId });
+
+    res.json({ message: "Appointment cancelled" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error deleting appointment" });
+  }
 });
 // Edit Appointment API
 

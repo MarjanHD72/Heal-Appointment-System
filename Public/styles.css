@@ -322,7 +322,10 @@ main {
   color: #fff;
   box-shadow: 0 20px 35px rgba(20, 90, 66, 0.18);
 }
-
+#quote {
+  color: #cbecdd;
+  font-style: italic;
+}
 .stat-box span {
   display: block;
   font-size: 0.92rem;
@@ -640,10 +643,20 @@ textarea {
   font-size: 0.88rem;
   font-weight: 700;
 }
-<<<<<<< Updated upstream
-
-=======
 .btn-danger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+<<<<<<< Updated upstream ======= .btn-danger {
   background: #e74c3c;
   color: white;
   border: none;
@@ -664,8 +677,7 @@ textarea {
 .btn-danger:hover {
   background: #c0392b;
 }
->>>>>>> Stashed changes
-.detail-section + .detail-section {
+>>>>>>>Stashed changes .detail-section + .detail-section {
   margin-top: 1.2rem;
 }
 

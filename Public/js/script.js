@@ -1,6 +1,58 @@
-// script.js - JavaScript for Heal Appointment System
+const healthTips = [
+  "💧 Drink at least 2 litres of water daily.",
+  "🚶 Take a short walk after meals to improve digestion.",
+  "😴 Aim for 7–8 hours of quality sleep.",
+  "🥗 Eat more fruits and vegetables every day.",
+  "🧘 Practice deep breathing to reduce stress.",
+  "📵 Avoid screens 30 minutes before sleep.",
+  "🏃 Stay active for at least 30 minutes a day.",
+  "🧂 Reduce salt intake to maintain healthy blood pressure.",
+];
+// Messages color Codes
+const greenTheme = {
+  confirmButtonColor: "#2e7d5b",
+  cancelButtonColor: "#b0bec5",
+  background: "#f4f9f7",
+  color: "#1b4332",
+};
+
+// B. Helper functions
+async function showSuccess(message) {
+  return await Swal.fire({
+    ...greenTheme,
+    icon: "success",
+    title: "Done",
+    text: message,
+  });
+}
+
+function showError(message) {
+  Swal.fire({
+    icon: "error",
+    title: "Something went wrong",
+    text: message,
+    confirmButtonColor: "#2e7d5b",
+    background: "#e6f4ea",
+    color: "#1b4332",
+    showClass: {
+      popup: "animate__animated animate__shakeX",
+    },
+  });
+}
+
+async function showConfirm(message) {
+  return await Swal.fire({
+    ...greenTheme,
+    title: message,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "Yes",
+    cancelButtonText: "No",
+  });
+}
 
 document.addEventListener("DOMContentLoaded", function () {
+<<<<<<< HEAD:Public/script.js
 <<<<<<< Updated upstream:Public/script.js
 =======
   // Health Tips
@@ -26,26 +78,49 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
 >>>>>>> Stashed changes:Public/js/script.js
+=======
+  // Health Tips
+
+  getHealthTip();
+>>>>>>> master:Public/js/script.js
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
-    loginForm.addEventListener("submit", function (e) {
+    loginForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
 
-      if (validateEmail(email) && password.length >= 6) {
-        alert("Login successful! Redirecting to dashboard...");
-        window.location.href = "dashboard.html";
-      } else {
-        alert("Please enter valid email and password (min 6 characters).");
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({ email, password }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          await showSuccess("Login successful! 🌿");
+          window.location.href = "dashboard.html";
+        } else {
+          showError(data.message || "Login failed");
+        }
+      } catch (err) {
+        console.error(err);
+        showError("Something went wrong");
       }
     });
   }
 
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
-    registerForm.addEventListener("submit", function (e) {
+    registerForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const firstName = document.getElementById("firstName").value;
       const lastName = document.getElementById("lastName").value;
       const email = document.getElementById("email").value;
@@ -54,51 +129,82 @@ document.addEventListener("DOMContentLoaded", function () {
       const nhsNumber = document.getElementById("nhsNumber").value;
 
       if (
-        firstName &&
-        lastName &&
-        validateEmail(email) &&
-        password.length >= 6 &&
-        password === confirmPassword &&
-        nhsNumber
+        !firstName ||
+        !lastName ||
+        !validateEmail(email) ||
+        password.length < 6 ||
+        password !== confirmPassword ||
+        !nhsNumber
       ) {
-        alert("Registration successful! Please login.");
-        window.location.href = "login.html";
-      } else {
-        alert(
-          "Please fill all fields correctly. Password must be at least 6 characters and match confirmation.",
-        );
+        showError("Please fill all fields correctly.");
+
+        return;
+      }
+
+      try {
+        const res = await fetch("/api/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            password,
+            nhsNumber,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          await showSuccess("Registration successful! 🌿");
+
+          window.location.href = "login.html";
+        } else {
+          showError(data.message || "Registration failed");
+        }
+      } catch (err) {
+        console.error(err);
+        showError("Something went wrong");
       }
     });
   }
 
   const bookingForm = document.getElementById("bookingForm");
   if (bookingForm) {
-    bookingForm.addEventListener("submit", function (e) {
+    bookingForm.addEventListener("submit", async function (e) {
       e.preventDefault();
+
       const appointmentType = document.getElementById("appointmentType").value;
       const date = document.getElementById("date").value;
       const time = document.getElementById("time").value;
       const reason = document.getElementById("reason").value;
 
       if (appointmentType && date && time && reason) {
-        const appointment = {
-          type: appointmentType,
-          date,
-          time,
-          reason,
-          id: Date.now(),
-        };
+        try {
+          await fetch("/api/appointments", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            credentials: "include",
+            body: JSON.stringify({
+              title: appointmentType,
+              date: date + " at " + time,
+              notes: reason,
+            }),
+          });
 
-        const appointments = JSON.parse(
-          localStorage.getItem("appointments") || "[]",
-        );
-        appointments.push(appointment);
-        localStorage.setItem("appointments", JSON.stringify(appointments));
-
-        alert("Appointment booked successfully!");
-        window.location.href = "dashboard.html";
+          await showSuccess("Appointment booked successfully 🌿");
+          window.location.href = "dashboard.html";
+        } catch (err) {
+          console.error(err);
+          showError("Something went wrong");
+        }
       } else {
-        alert("Please fill all fields.");
+        showError("Please fill all fields.");
       }
     });
   }
@@ -113,31 +219,61 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const logoutBtn = document.getElementById("logout");
   if (logoutBtn) {
-    logoutBtn.addEventListener("click", function (e) {
+    logoutBtn.addEventListener("click", async function (e) {
       e.preventDefault();
-      alert("Logged out successfully.");
+
+      try {
+        await fetch("/api/logout", {
+          method: "POST",
+          credentials: "include",
+        });
+      } catch (err) {
+        console.error(err);
+      }
+      await showSuccess("Logged out successfully. 🌿");
+
       window.location.href = "index.html";
     });
   }
 
   loadBookingSummary();
+  checkLogin();
 });
+
+function setElementVisibility(elementId, isVisible) {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.hidden = !isVisible;
+    element.style.display = isVisible ? "" : "none";
+  }
+}
+
+function updateNavigation(isLoggedIn) {
+  setElementVisibility("navLogin", !isLoggedIn);
+  setElementVisibility("navRegister", !isLoggedIn);
+  setElementVisibility("navDashboard", isLoggedIn);
+  setElementVisibility("navBooking", isLoggedIn);
+  setElementVisibility("navLogout", isLoggedIn);
+  setElementVisibility("createAccountBtn", !isLoggedIn);
+}
 
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
 }
 
-function loadAppointments() {
+async function loadAppointments() {
   const appointmentsList = document.getElementById("appointmentsList");
-  const appointments = JSON.parse(localStorage.getItem("appointments") || "[]");
 
+<<<<<<< HEAD:Public/script.js
 <<<<<<< Updated upstream:Public/script.js
   if (appointments.length === 0) {
     appointmentsList.innerHTML =
       '<p class="empty-state">No appointments booked yet. Your upcoming visits will appear here after you make a booking.</p>';
     return;
 =======
+=======
+>>>>>>> master:Public/js/script.js
   try {
     const res = await fetch("/api/appointments", {
       credentials: "include",
@@ -163,9 +299,12 @@ function loadAppointments() {
       <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">
         Cancel your Appointment
       </button>
+<<<<<<< HEAD:Public/script.js
        <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">
         Edit your Appointment
       </button>
+=======
+>>>>>>> master:Public/js/script.js
     </article>
   `;
     });
@@ -175,27 +314,11 @@ function loadAppointments() {
   } catch (err) {
     console.error(err);
     appointmentsList.innerHTML = "<p>Error loading appointments</p>";
+<<<<<<< HEAD:Public/script.js
 >>>>>>> Stashed changes:Public/js/script.js
+=======
+>>>>>>> master:Public/js/script.js
   }
-
-  let html = '<div class="appointment-grid">';
-  appointments.forEach((appointment) => {
-    const appointmentLabels = {
-      gp: "GP Consultation",
-      nurse: "Nurse Visit",
-      specialist: "Specialist Referral",
-    };
-
-    html += `
-      <article class="appointment-card">
-        <span class="appointment-meta">${appointment.date} at ${appointment.time}</span>
-        <h3>${appointmentLabels[appointment.type] || appointment.type}</h3>
-        <p>${appointment.reason}</p>
-      </article>
-    `;
-  });
-  html += "</div>";
-  appointmentsList.innerHTML = html;
 }
 
 function initializeDoctorsDirectory() {
@@ -400,7 +523,6 @@ function initializeDoctorsDirectory() {
     const activeDoctor = filteredDoctors.find(
       (doctor) => doctor.id === activeDoctorId,
     );
-
     if (activeDoctor) {
       renderDoctorDetails(activeDoctor);
     }
@@ -427,13 +549,11 @@ function initializeDoctorsDirectory() {
 
   searchInput.addEventListener("input", renderDoctorCards);
   specialtyFilter.addEventListener("change", renderDoctorCards);
-
   renderDoctorCards();
 }
 
 function loadBookingSummary() {
   const bookingCard = document.getElementById("data");
-
   if (!bookingCard) {
     return;
   }
@@ -450,8 +570,11 @@ function loadBookingSummary() {
     bookingCard.innerHTML = "No booking yet";
   }
 }
+<<<<<<< HEAD:Public/script.js
 <<<<<<< Updated upstream:Public/script.js
 =======
+=======
+>>>>>>> master:Public/js/script.js
 
 async function checkLogin() {
   try {
@@ -534,6 +657,7 @@ async function deleteAppointment(id) {
     showError("Something went wrong");
   }
 }
+<<<<<<< HEAD:Public/script.js
 
 // Edit Appointment
 
@@ -598,3 +722,5 @@ async function EditAppointment(id) {
   }
 }
 >>>>>>> Stashed changes:Public/js/script.js
+=======
+>>>>>>> master:Public/js/script.js

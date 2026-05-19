@@ -1,30 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Book Appointment - Heal Appointment System</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <header>
-<<<<<<< Updated upstream
-        <div class="container">
-            <h1>Heal Appointment System</h1>
-            <nav>
-                <ul>
-                    <li><a href="index.html">Home</a></li>
-                    <li><a href="login.html">Login</a></li>
-                    <li><a href="register.html">Register</a></li>
-                    <li><a href="booking.html">Book Appointment</a></li>
-                </ul>
-            </nav>
-        </div>
-=======
       <div class="container">
         <h1>Heal Appointment System</h1>
-        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
         <nav>
           <ul>
             <li><a href="index.html">Home</a></li>
@@ -40,63 +29,79 @@
           </ul>
         </nav>
       </div>
->>>>>>> Stashed changes
     </header>
 
     <main>
-        <section class="form-section">
-            <div class="container">
-                <div class="panel">
-                    <div class="form-intro">
-                        <span class="eyebrow">Schedule Care</span>
-                        <h2>Book your next appointment</h2>
-                        <p>Select the visit type, choose your preferred time, and send the reason for your appointment in one clean flow.</p>
-                    </div>
-                    <form id="bookingForm">
-                        <div class="form-grid">
-                            <div class="form-group full-width">
-                                <label for="appointmentType">Appointment Type</label>
-                                <select id="appointmentType" name="appointmentType" required>
-                                    <option value="">Select Type</option>
-                                    <option value="gp">GP Consultation</option>
-                                    <option value="nurse">Nurse Visit</option>
-                                    <option value="specialist">Specialist Referral</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="date">Preferred Date</label>
-                                <input type="date" id="date" name="date" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="time">Preferred Time</label>
-                                <select id="time" name="time" required>
-                                    <option value="">Select Time</option>
-                                    <option value="09:00">09:00</option>
-                                    <option value="10:00">10:00</option>
-                                    <option value="11:00">11:00</option>
-                                    <option value="14:00">14:00</option>
-                                    <option value="15:00">15:00</option>
-                                    <option value="16:00">16:00</option>
-                                </select>
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="reason">Reason for Appointment</label>
-                                <textarea id="reason" name="reason" rows="4" placeholder="Briefly tell us what you need help with" required></textarea>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn-primary">Confirm Booking</button>
-                    </form>
-                </div>
+      <section class="form-section">
+        <div class="container">
+          <div class="panel">
+            <div class="form-intro">
+              <span class="eyebrow">Schedule Care</span>
+              <h2>Book your next appointment</h2>
+              <p>
+                Select the visit type, choose your preferred time, and send the
+                reason for your appointment in one clean flow.
+              </p>
             </div>
-        </section>
+            <form id="bookingForm">
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label for="appointmentType">Appointment Type</label>
+                  <select id="appointmentType" name="appointmentType" required>
+                    <option value="">Select Type</option>
+                    <option value="gp">GP Consultation</option>
+                    <option value="nurse">Nurse Visit</option>
+                    <option value="specialist">Specialist Referral</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="date">Preferred Date</label>
+                  <input type="date" id="date" name="date" required />
+                </div>
+                <div class="form-group">
+                  <label for="time">Preferred Time</label>
+                  <select id="time" name="time" required>
+                    <option value="">Select Time</option>
+                    <option value="09:00">09:00</option>
+                    <option value="10:00">10:00</option>
+                    <option value="11:00">11:00</option>
+                    <option value="14:00">14:00</option>
+                    <option value="15:00">15:00</option>
+                    <option value="16:00">16:00</option>
+                  </select>
+                </div>
+                <div class="form-group full-width">
+                  <label for="reason">Reason for Appointment</label>
+                  <textarea
+                    id="reason"
+                    name="reason"
+                    rows="4"
+                    placeholder="Briefly tell us what you need help with"
+                    required
+                  ></textarea>
+                </div>
+              </div>
+              <button type="submit" class="btn-primary">Confirm Booking</button>
+            </form>
+          </div>
+        </div>
+      </section>
     </main>
 
     <footer>
-        <div class="container">
-            <p>&copy; 2026 Heal Appointment System. All rights reserved.</p>
-        </div>
+      <div class="container">
+        <p>&copy; 2026 Heal Appointment System. All rights reserved.</p>
+      </div>
     </footer>
 
-    <script src="script.js"></script>
-</body>
+    <script src="./js/script.js"></script>
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Animation -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
+  </body>
 </html>

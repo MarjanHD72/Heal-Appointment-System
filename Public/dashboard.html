@@ -18,14 +18,15 @@
         <nav>
           <ul>
             <li><a href="index.html">Home</a></li>
-            <li><a href="dashboard.html">Dashboard</a></li>
-            <li><a href="booking.html">Book Appointment</a></li>
-            <li><a href="#" id="logout">Logout</a></li>
+            <li id="navLogin" hidden><a href="login.html">Login</a></li>
+            <li id="navRegister" hidden>
+              <a href="register.html">Register</a>
+            </li>
+            <li id="navDashboard"><a href="dashboard.html">Dashboard</a></li>
+            <li id="navBooking"><a href="booking.html">Book Appointment</a></li>
+            <li id="navLogout"><a href="#" id="logout">Logout</a></li>
           </ul>
         </nav>
-        <h2>Your Appointment</h2>
-
-        <div class="card" id="data"></div>
       </div>
     </header>
 
@@ -60,6 +61,14 @@
       </div>
     </footer>
 
-    <script src="script.js"></script>
+    <script src="./js/script.js"></script>
+    <!-- SweetAlert -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Animation -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+    />
   </body>
 </html>
