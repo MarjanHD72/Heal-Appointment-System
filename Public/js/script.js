@@ -15,6 +15,8 @@ const greenTheme = {
   background: "#f4f9f7",
   color: "#1b4332",
 };
+//allAppointments global variable
+let allAppointments = [];
 
 // B. Helper functions
 async function showSuccess(message) {
@@ -262,43 +264,19 @@ async function loadAppointments() {
     });
 
     const appointments = await res.json();
-
-    if (appointments.length === 0) {
-      appointmentsList.innerHTML =
-        '<p class="empty-state">No appointments booked yet.</p>';
-      return;
-    }
-
-    let html = '<div class="appointment-grid">';
-
-    appointments.forEach((appointment) => {
-      const [day, month, year] = appointment.date.split(" at ")[0].split("/");
-      const appointmentDate = new Date(`${year}-${month}-${day}`);
-      const today = new Date();
-
-      let displayStatus = appointment.status || "Upcoming";
-      if (displayStatus === "Upcoming" && appointmentDate < today) {
-        displayStatus = "Completed";
-      }
-      html += `
-    <article class="appointment-card">
-         <span class="appointment-meta">${appointment.date}</span>
-     <span class="status-badge ${displayStatus.toLowerCase()}">${displayStatus}</span>
-      <h3>${appointment.title}</h3>
-      <p>${appointment.notes}</p>
-
-      <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">
-        Cancel your Appointment
-      </button>
-       <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">
-        Edit your Appointment
-      </button>
-    </article>
-  `;
-    });
-
-    html += "</div>";
-    appointmentsList.innerHTML = html;
+    allAppointments = appointments;
+    // load upcoming first
+    renderAppointments(
+      appointments.filter((a) => {
+        const datePart = a.date.split(" at ")[0];
+        const appointmentDate = new Date(datePart);
+        const today = new Date();
+        let status = a.status || "Upcoming";
+        if (status === "Upcoming" && appointmentDate < today)
+          status = "Completed";
+        return status === "Upcoming";
+      }),
+    );
   } catch (err) {
     console.error(err);
     appointmentsList.innerHTML = "<p>Error loading appointments</p>";
@@ -717,4 +695,68 @@ async function updateStatus(id, status) {
     console.error(err);
     showError("Something went wrong");
   }
+}
+
+// render Appointment
+function renderAppointments(appointments) {
+  const appointmentsList = document.getElementById("appointmentsList");
+  if (appointments.length === 0) {
+    appointmentsList.innerHTML =
+      '<p class="empty-state">No appointments booked yet.</p>';
+    return;
+  }
+
+  let html = '<div class="appointment-grid">';
+
+  appointments.forEach((appointment) => {
+    const [day, month, year] = appointment.date.split(" at ")[0].split("/");
+    const appointmentDate = new Date(`${year}-${month}-${day}`);
+    const today = new Date();
+
+    let displayStatus = appointment.status || "Upcoming";
+    if (displayStatus === "Upcoming" && appointmentDate < today) {
+      displayStatus = "Completed";
+    }
+    html += `
+    <article class="appointment-card">
+         <span class="appointment-meta">${appointment.date}</span>
+     <span class="status-badge ${displayStatus.toLowerCase()}">${displayStatus}</span>
+      <h3>${appointment.title}</h3>
+      <p>${appointment.notes}</p>
+
+      <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">
+        Cancel your Appointment
+      </button>
+       <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">
+        Edit your Appointment
+      </button>
+    </article>
+  `;
+  });
+
+  html += "</div>";
+  appointmentsList.innerHTML = html;
+}
+
+// FilterAppointments Tab
+function filterAppointments(status) {
+  document.querySelectorAll(".tab").forEach((tab) => {
+    tab.classList.remove("active");
+  });
+  event.target.classList.add("active");
+  // filtering
+  const filtered = allAppointments.filter((appointment) => {
+    const datePart = appointment.date.split(" at ")[0];
+    const appointmentDate = new Date(datePart);
+    const today = new Date();
+
+    let displayStatus = appointment.status || "Upcoming";
+    if (displayStatus === "Upcoming" && appointmentDate < today) {
+      displayStatus = "Completed";
+    }
+
+    return displayStatus === status;
+  });
+
+  renderAppointments(filtered);
 }
