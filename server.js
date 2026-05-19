@@ -19,21 +19,6 @@ mongoose
 // end of connect to mongoDb
 
 // middleware
-<<<<<<< Updated upstream
-=======
-const PORT = process.env.PORT || 3000;
-const Appointment = require("./models/Appointment");
-//connect to mongoDb
-const MONGO_URI = process.env.MONGO_URI;
-
-mongoose
-  .connect(MONGO_URI)
-  .then(() => console.log("MongoDB connected successfully"))
-  .catch((err) => console.log(err));
-// end of connect to mongoDb
-
-// middleware
->>>>>>> Stashed changes
 app.use(express.json());
 app.use(
   session({
