@@ -272,9 +272,18 @@ async function loadAppointments() {
     let html = '<div class="appointment-grid">';
 
     appointments.forEach((appointment) => {
+      const [day, month, year] = appointment.date.split(" at ")[0].split("/");
+      const appointmentDate = new Date(`${year}-${month}-${day}`);
+      const today = new Date();
+
+      let displayStatus = appointment.status || "Upcoming";
+      if (displayStatus === "Upcoming" && appointmentDate < today) {
+        displayStatus = "Completed";
+      }
       html += `
     <article class="appointment-card">
-      <span class="appointment-meta">${appointment.date}</span>
+         <span class="appointment-meta">${appointment.date}</span>
+     <span class="status-badge ${displayStatus.toLowerCase()}">${displayStatus}</span>
       <h3>${appointment.title}</h3>
       <p>${appointment.notes}</p>
 
@@ -614,9 +623,11 @@ async function deleteAppointment(id) {
   if (!result.isConfirmed) return;
 
   try {
-    await fetch(`/api/appointments/${id}`, {
-      method: "DELETE",
+    await fetch(`/api/appointments/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
       credentials: "include",
+      body: JSON.stringify({ status: "Cancelled" }),
     });
 
     await showSuccess("Appointment Cancelled successfully 🌿");
@@ -683,6 +694,24 @@ async function EditAppointment(id) {
     });
 
     await showSuccess("Appointment updated successfully 🌿");
+    loadAppointments();
+  } catch (err) {
+    console.error(err);
+    showError("Something went wrong");
+  }
+}
+// Appointment Status
+async function updateStatus(id, status) {
+  try {
+    await fetch(`/api/appointments/${id}/status`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ status }),
+    });
+
+    await showSuccess("Appointment Updated successfully 🌿");
+
     loadAppointments();
   } catch (err) {
     console.error(err);

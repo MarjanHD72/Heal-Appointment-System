@@ -9,8 +9,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const Appointment = require("./models/Appointment");
 //connect to mongoDb
-const MONGO_URI =
-  process.env.MONGO_URI
+const MONGO_URI = process.env.MONGO_URI;
 
 mongoose
   .connect(MONGO_URI)
@@ -262,5 +261,32 @@ app.put("/api/appointments/:id", async (req, res) => {
   } catch (err) {
     console.log(err);
     res.status(500).json({ message: "Error Updating appointment" });
+  }
+});
+// Appointment Status
+app.patch("/api/appointments/:id/status", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+  const { status } = req.body;
+  const appointmentId = req.params.id;
+  const validStatuses = ["Upcoming", "Completed", "Cancelled"];
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({ message: "Invalid status" });
+  }
+  try {
+    const updated = await Appointment.findOneAndUpdate(
+      { _id: appointmentId, userId: req.session.user.id },
+      { status },
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    res.json({ message: "Appointment status updated" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error getting status of appointment" });
   }
 });
