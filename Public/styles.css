@@ -656,15 +656,7 @@ textarea {
 .btn-danger:hover {
   background: #c0392b;
 }
-<<<<<<< Updated upstream ======= .btn-danger {
-  background: #e74c3c;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  margin-top: 10px;
-}
+
 .btn-warning {
   background: #e0ec7b;
   color: #145a42;
@@ -674,10 +666,8 @@ textarea {
   cursor: pointer;
   margin-top: 10px;
 }
-.btn-danger:hover {
-  background: #c0392b;
-}
->>>>>>>Stashed changes .detail-section + .detail-section {
+
+.detail-section + .detail-section {
   margin-top: 1.2rem;
 }
 

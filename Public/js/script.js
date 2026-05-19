@@ -52,9 +52,6 @@ async function showConfirm(message) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
-<<<<<<< HEAD:Public/script.js
-<<<<<<< Updated upstream:Public/script.js
-=======
   // Health Tips
   getHealthTip();
 
@@ -77,12 +74,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
->>>>>>> Stashed changes:Public/js/script.js
-=======
-  // Health Tips
-
-  getHealthTip();
->>>>>>> master:Public/js/script.js
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -265,15 +256,6 @@ function validateEmail(email) {
 async function loadAppointments() {
   const appointmentsList = document.getElementById("appointmentsList");
 
-<<<<<<< HEAD:Public/script.js
-<<<<<<< Updated upstream:Public/script.js
-  if (appointments.length === 0) {
-    appointmentsList.innerHTML =
-      '<p class="empty-state">No appointments booked yet. Your upcoming visits will appear here after you make a booking.</p>';
-    return;
-=======
-=======
->>>>>>> master:Public/js/script.js
   try {
     const res = await fetch("/api/appointments", {
       credentials: "include",
@@ -299,12 +281,9 @@ async function loadAppointments() {
       <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">
         Cancel your Appointment
       </button>
-<<<<<<< HEAD:Public/script.js
        <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">
         Edit your Appointment
       </button>
-=======
->>>>>>> master:Public/js/script.js
     </article>
   `;
     });
@@ -314,10 +293,6 @@ async function loadAppointments() {
   } catch (err) {
     console.error(err);
     appointmentsList.innerHTML = "<p>Error loading appointments</p>";
-<<<<<<< HEAD:Public/script.js
->>>>>>> Stashed changes:Public/js/script.js
-=======
->>>>>>> master:Public/js/script.js
   }
 }
 
@@ -570,11 +545,6 @@ function loadBookingSummary() {
     bookingCard.innerHTML = "No booking yet";
   }
 }
-<<<<<<< HEAD:Public/script.js
-<<<<<<< Updated upstream:Public/script.js
-=======
-=======
->>>>>>> master:Public/js/script.js
 
 async function checkLogin() {
   try {
@@ -651,16 +621,14 @@ async function deleteAppointment(id) {
 
     await showSuccess("Appointment Cancelled successfully 🌿");
 
-    loadAppointments(); // refresh list
+    loadAppointments();
   } catch (err) {
     console.error(err);
     showError("Something went wrong");
   }
 }
-<<<<<<< HEAD:Public/script.js
 
 // Edit Appointment
-
 async function EditAppointment(id) {
   const { value } = await Swal.fire({
     ...greenTheme,
@@ -721,6 +689,3 @@ async function EditAppointment(id) {
     showError("Something went wrong");
   }
 }
->>>>>>> Stashed changes:Public/js/script.js
-=======
->>>>>>> master:Public/js/script.js
