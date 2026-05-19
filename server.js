@@ -3,6 +3,21 @@ const session = require("express-session");
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 const app = express();
+<<<<<<< Updated upstream
+=======
+const PORT = process.env.PORT || 3000;
+const Appointment = require("./models/Appointment");
+//connect to mongoDb
+const MONGO_URI = process.env.MONGO_URI;
+
+mongoose
+  .connect(MONGO_URI)
+  .then(() => console.log("MongoDB connected successfully"))
+  .catch((err) => console.log(err));
+// end of connect to mongoDb
+
+// middleware
+>>>>>>> Stashed changes
 app.use(express.json());
 app.use(
   session({
@@ -84,4 +99,30 @@ app.listen(PORT, () => {
   console.log(
     `NHS Booking System server is running on http://localhost:${PORT}`,
   );
+});
+// Edit Appointment API
+
+app.put("/api/appointments/:id", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  const appointmentId = req.params.id;
+  const { title, date, notes } = req.body;
+
+  try {
+    const updated = await Appointment.findOneAndUpdate(
+      { _id: appointmentId, userId: req.session.user.id },
+      { title, date, notes },
+    );
+
+    if (!updated) {
+      return res.status(404).json({ message: "Appointment not found" });
+    }
+
+    res.json({ message: "Appointment Updated" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Error Updating appointment" });
+  }
 });

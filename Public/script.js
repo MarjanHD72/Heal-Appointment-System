@@ -1,6 +1,31 @@
 // script.js - JavaScript for Heal Appointment System
 
 document.addEventListener("DOMContentLoaded", function () {
+<<<<<<< Updated upstream:Public/script.js
+=======
+  // Health Tips
+  getHealthTip();
+
+  // Mobile nav toggle
+  const navToggle = document.querySelector(".nav-toggle");
+  const mainNav = document.querySelector("nav");
+  if (navToggle && mainNav) {
+    navToggle.addEventListener("click", function () {
+      const isOpen = mainNav.classList.toggle("is-open");
+      this.setAttribute("aria-expanded", isOpen);
+      this.innerHTML = isOpen ? "&#10005;" : "&#9776;";
+    });
+
+    mainNav.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        mainNav.classList.remove("is-open");
+        navToggle.setAttribute("aria-expanded", "false");
+        navToggle.innerHTML = "&#9776;";
+      });
+    });
+  }
+
+>>>>>>> Stashed changes:Public/js/script.js
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", function (e) {
@@ -107,10 +132,50 @@ function loadAppointments() {
   const appointmentsList = document.getElementById("appointmentsList");
   const appointments = JSON.parse(localStorage.getItem("appointments") || "[]");
 
+<<<<<<< Updated upstream:Public/script.js
   if (appointments.length === 0) {
     appointmentsList.innerHTML =
       '<p class="empty-state">No appointments booked yet. Your upcoming visits will appear here after you make a booking.</p>';
     return;
+=======
+  try {
+    const res = await fetch("/api/appointments", {
+      credentials: "include",
+    });
+
+    const appointments = await res.json();
+
+    if (appointments.length === 0) {
+      appointmentsList.innerHTML =
+        '<p class="empty-state">No appointments booked yet.</p>';
+      return;
+    }
+
+    let html = '<div class="appointment-grid">';
+
+    appointments.forEach((appointment) => {
+      html += `
+    <article class="appointment-card">
+      <span class="appointment-meta">${appointment.date}</span>
+      <h3>${appointment.title}</h3>
+      <p>${appointment.notes}</p>
+
+      <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">
+        Cancel your Appointment
+      </button>
+       <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">
+        Edit your Appointment
+      </button>
+    </article>
+  `;
+    });
+
+    html += "</div>";
+    appointmentsList.innerHTML = html;
+  } catch (err) {
+    console.error(err);
+    appointmentsList.innerHTML = "<p>Error loading appointments</p>";
+>>>>>>> Stashed changes:Public/js/script.js
   }
 
   let html = '<div class="appointment-grid">';
@@ -350,6 +415,11 @@ function initializeDoctorsDirectory() {
         if (selectedDoctor) {
           renderDoctorDetails(selectedDoctor);
           renderDoctorCards();
+          if (window.innerWidth <= 900) {
+            document
+              .getElementById("doctorDetailCard")
+              .scrollIntoView({ behavior: "smooth", block: "start" });
+          }
         }
       });
     });
@@ -380,3 +450,151 @@ function loadBookingSummary() {
     bookingCard.innerHTML = "No booking yet";
   }
 }
+<<<<<<< Updated upstream:Public/script.js
+=======
+
+async function checkLogin() {
+  try {
+    const res = await fetch("/api/me", {
+      credentials: "include",
+    });
+
+    if (res.ok) {
+      const user = await res.json();
+      console.log("Logged in:", user);
+      updateNavigation(true);
+    } else {
+      console.log("Not logged in");
+      updateNavigation(false);
+
+      if (
+        window.location.pathname.includes("dashboard.html") ||
+        window.location.pathname.includes("booking.html")
+      ) {
+        window.location.href = "login.html";
+      }
+    }
+  } catch (err) {
+    console.error(err);
+    updateNavigation(false);
+  }
+}
+
+// book an appointment btn event
+const bookingBtn = document.getElementById("bookingBtn");
+if (bookingBtn) {
+  bookingBtn.addEventListener("click", async function (e) {
+    e.preventDefault();
+
+    console.log("clicked");
+    try {
+      const res = await fetch("/api/me", {
+        credentials: "include",
+      });
+
+      if (res.ok) {
+        window.location.href = "booking.html";
+      } else {
+        window.location.href = "login.html";
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  });
+}
+// health Tips Function
+function getHealthTip() {
+  const quoteEl = document.getElementById("quote");
+
+  if (!quoteEl) return;
+
+  const randomIndex = Math.floor(Math.random() * healthTips.length);
+  const tip = healthTips[randomIndex];
+
+  quoteEl.innerHTML = `<div style="font-weight:600;"></div>
+     <div style="margin-top:6px;">${tip}</div>`;
+}
+// Cancel Appointment (Delete Appointment)
+async function deleteAppointment(id) {
+  const result = await showConfirm("Do you want to Cancel this appointment?");
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await fetch(`/api/appointments/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    await showSuccess("Appointment Cancelled successfully 🌿");
+
+    loadAppointments(); // refresh list
+  } catch (err) {
+    console.error(err);
+    showError("Something went wrong");
+  }
+}
+
+// Edit Appointment
+
+async function EditAppointment(id) {
+  const { value } = await Swal.fire({
+    ...greenTheme,
+    title: "Edit Appointment",
+    html: `
+  <div style="width:calc(100% - 3.5em);margin:0 auto;display:flex;flex-direction:column;gap:0.5em;">
+    <select id="swal-title" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);appearance:auto;">
+      <option value="">Select Type</option>
+      <option value="GP Consultation">GP Consultation</option>
+      <option value="Nurse Visit">Nurse Visit</option>
+      <option value="Specialist Referral">Specialist Referral</option>
+    </select>
+    <input id="swal-date" type="date" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);box-sizing:border-box;">
+    <select id="swal-time" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);appearance:auto;">
+      <option value="">Select Time</option>
+      <option value="09:00">09:00</option>
+      <option value="10:00">10:00</option>
+      <option value="11:00">11:00</option>
+      <option value="14:00">14:00</option>
+      <option value="15:00">15:00</option>
+      <option value="16:00">16:00</option>
+    </select>
+    <textarea id="swal-notes" placeholder="Reason" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);resize:vertical;min-height:7em;font-family:inherit;box-sizing:border-box;"></textarea>
+  </div>
+`,
+    showCancelButton: true,
+    confirmButtonText: "Save",
+    cancelButtonText: "Cancel",
+    preConfirm: () => {
+      const title = document.getElementById("swal-title").value;
+      const date = document.getElementById("swal-date").value;
+      const time = document.getElementById("swal-time").value;
+      const notes = document.getElementById("swal-notes").value;
+
+      if (!title || !date || !time || !notes) {
+        Swal.showValidationMessage("Please fill all fields");
+        return false;
+      }
+
+      return { title, date: date + " at " + time, notes };
+    },
+  });
+
+  if (!value) return;
+
+  try {
+    await fetch(`/api/appointments/${id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(value),
+    });
+
+    await showSuccess("Appointment updated successfully 🌿");
+    loadAppointments();
+  } catch (err) {
+    console.error(err);
+    showError("Something went wrong");
+  }
+}
+>>>>>>> Stashed changes:Public/js/script.js
