@@ -637,6 +637,38 @@ textarea {
   background: #fff0f3;
   color: #a4161a;
 }
+.tabs {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tabs button {
+  border: 1px solid var(--primary);
+  background: linear-gradient(135deg, var(--primary), #2ea26d);
+  color: #fff;
+  box-shadow: 0 16px 30px rgba(31, 122, 90, 0.22);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.4rem;
+  border-radius: 999px;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+.tab.active {
+  background: #2e7d5b;
+  color: white;
+}
 .status-badge {
   padding: 4px 10px;
   border-radius: 20px;

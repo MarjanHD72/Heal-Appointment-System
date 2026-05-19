@@ -14,7 +14,13 @@
     <header>
       <div class="container">
         <h1>Heal Appointment System</h1>
-        <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+        <button
+          class="nav-toggle"
+          aria-label="Toggle navigation"
+          aria-expanded="false"
+        >
+          &#9776;
+        </button>
         <nav>
           <ul>
             <li><a href="index.html">Home</a></li>
@@ -42,9 +48,27 @@
                 appointment whenever you need it.
               </p>
             </div>
+            <div class="tabs">
+              <button
+                class="tab active"
+                onclick="filterAppointments('Upcoming')"
+              >
+                Upcoming
+              </button>
+              <button
+                class="tab active"
+                onclick="filterAppointments('Completed')"
+              >
+                Completed
+              </button>
+              <button class="tab" onclick="filterAppointments('Cancelled')">
+                Cancelled
+              </button>
+            </div>
             <div id="appointmentsList">
               <!-- Appointments will be loaded here -->
             </div>
+
             <div class="dashboard-actions">
               <a href="booking.html" class="btn-primary"
                 >Book New Appointment</a
