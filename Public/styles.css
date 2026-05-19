@@ -23,6 +23,7 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: hidden;
 }
 
 body {
@@ -655,7 +656,28 @@ textarea {
 .btn-danger:hover {
   background: #c0392b;
 }
-.detail-section + .detail-section {
+<<<<<<< Updated upstream ======= .btn-danger {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.btn-warning {
+  background: #e0ec7b;
+  color: #145a42;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+.btn-danger:hover {
+  background: #c0392b;
+}
+>>>>>>>Stashed changes .detail-section + .detail-section {
   margin-top: 1.2rem;
 }
 
@@ -693,21 +715,63 @@ footer {
   text-align: center;
 }
 
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: pointer;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-sm);
+  font-size: 1.35rem;
+  line-height: 1;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.nav-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
 @media (max-width: 900px) {
-  header .container,
   .hero-card,
   .directory-shell {
     grid-template-columns: 1fr;
   }
 
-  header .container {
-    display: grid;
-    justify-content: center;
-    text-align: center;
+  .nav-toggle {
+    display: flex;
+  }
+
+  nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: rgba(10, 35, 24, 0.97);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0.75rem 1rem 1rem;
+    backdrop-filter: blur(14px);
+    z-index: 19;
+  }
+
+  nav.is-open {
+    display: block;
   }
 
   nav ul {
-    justify-content: center;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+  }
+
+  nav a {
+    border-radius: var(--radius-sm);
+    padding: 0.8rem 1rem;
+    justify-content: flex-start;
   }
 
   .hero-highlights,
@@ -749,9 +813,5 @@ footer {
   .btn-primary,
   .btn-secondary {
     width: 100%;
-  }
-
-  nav ul {
-    flex-direction: column;
   }
 }
