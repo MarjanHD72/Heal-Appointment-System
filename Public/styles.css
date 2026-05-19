@@ -625,7 +625,24 @@ textarea {
   justify-content: center;
   margin-top: 2rem;
 }
-
+.status-badge.upcoming {
+  background: #a2d2ff;
+  color: #145a42;
+}
+.status-badge.completed {
+  background: #d8f3dc;
+  color: #145a42;
+}
+.status-badge.cancelled {
+  background: #fff0f3;
+  color: #a4161a;
+}
+.status-badge {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
 .appointment-grid {
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   margin-top: 2rem;
