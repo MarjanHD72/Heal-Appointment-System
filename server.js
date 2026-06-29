@@ -290,3 +290,105 @@ app.patch("/api/appointments/:id/status", async (req, res) => {
     res.status(500).json({ message: "Error getting status of appointment" });
   }
 });
+// Voice Agent API
+app.post("/api/voice-agent", async (req, res) => {
+  if (!req.session.user) {
+    return res.status(401).json({ message: "Not logged in" });
+  }
+
+  const { userMessage } = req.body;
+  const userId = req.session.user.id;
+
+  try {
+    // Get user's appointments for context
+    const appointments = await Appointment.find({ userId }).sort({ date: -1 });
+
+    const systemPrompt = `You are a helpful medical appointment assistant. 
+The user's appointments are: ${JSON.stringify(appointments)}
+You can help them: book new appointments, cancel existing ones, or edit them.
+When user wants to book: extract title, date, notes and respond with JSON: {"action": "book", "title": "...", "date": "...", "notes": "..."}
+When user wants to cancel: respond with JSON: {"action": "cancel", "id": "..."}
+When user wants to edit: respond with JSON: {"action": "edit", "id": "...", "title": "...", "date": "...", "notes": "..."}
+Otherwise just respond normally in the same language as the user.`;
+
+    const response = await axios.post("http://localhost:11434/api/generate", {
+      model: "llama3",
+      prompt: `${systemPrompt}\n\nUser: ${userMessage}`,
+      stream: false,
+    });
+
+    const aiResponse = response.data.response;
+
+    // Try to parse as action
+    try {
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const action = JSON.parse(jsonMatch[0]);
+
+        if (action.action === "book") {
+          const newAppt = new Appointment({
+            title: action.title,
+            date: action.date,
+            notes: action.notes,
+            userId,
+          });
+          await newAppt.save();
+          return res.json({
+            message: "Appointment booked successfully!",
+            action: "booked",
+          });
+        }
+
+        if (action.action === "cancel") {
+          await Appointment.deleteOne({ _id: action.id, userId });
+          return res.json({
+            message: "Appointment cancelled!",
+            action: "cancelled",
+          });
+        }
+
+        if (action.action === "edit") {
+          await Appointment.findOneAndUpdate(
+            { _id: action.id, userId },
+            { title: action.title, date: action.date, notes: action.notes },
+          );
+          return res.json({
+            message: "Appointment updated!",
+            action: "edited",
+          });
+        }
+      }
+    } catch (e) {}
+
+    res.json({ message: aiResponse });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Voice agent error" });
+  }
+});
+// STT endpoint
+app.post("/api/stt", (req, res) => {
+  const chunks = [];
+  req.on("data", (chunk) => chunks.push(chunk));
+  req.on("end", async () => {
+    try {
+      const buffer = Buffer.concat(chunks);
+      const contentType = req.headers["content-type"];
+
+      const response = await axios.post(
+        "https://api.groq.com/openai/v1/audio/transcriptions",
+        buffer,
+        {
+          headers: {
+            Authorization: `Bearer ${process.env.GROQ_API_KEY}`,
+            "Content-Type": contentType,
+          },
+        },
+      );
+      res.json(response.data);
+    } catch (err) {
+      console.log("STT error:", err.message);
+      res.status(500).json({ message: "STT error" });
+    }
+  });
+});
