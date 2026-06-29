@@ -8,6 +8,7 @@ const healthTips = [
   "🏃 Stay active for at least 30 minutes a day.",
   "🧂 Reduce salt intake to maintain healthy blood pressure.",
 ];
+
 // Messages color Codes
 const greenTheme = {
   confirmButtonColor: "#2e7d5b",
@@ -759,4 +760,92 @@ function filterAppointments(status) {
   });
 
   renderAppointments(filtered);
+}
+// Voice Agent
+let mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+
+const voiceBtn = document.getElementById("voice-btn");
+const voiceStatus = document.getElementById("voice-status");
+
+if (voiceBtn) {
+  voiceBtn.addEventListener("click", async () => {
+    if (!isRecording) {
+      startRecording();
+    } else {
+      stopRecording();
+    }
+  });
+}
+
+async function startRecording() {
+  window.speechSynthesis.cancel();
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  mediaRecorder = new MediaRecorder(stream);
+  audioChunks = [];
+  isRecording = true;
+
+  voiceBtn.textContent = "🔴";
+  voiceStatus.textContent = "Listening...";
+
+  mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+  mediaRecorder.onstop = async () => {
+    const audioBlob = new Blob(audioChunks, { type: "audio/webm" });
+    await processAudio(audioBlob);
+  };
+
+  mediaRecorder.start();
+}
+
+function stopRecording() {
+  mediaRecorder.stop();
+  isRecording = false;
+  voiceBtn.textContent = "🎤";
+  voiceStatus.textContent = "Processing...";
+}
+
+async function processAudio(audioBlob) {
+  try {
+    const formData = new FormData();
+    formData.append("file", audioBlob, "audio.webm");
+    formData.append("model", "whisper-large-v3");
+
+    const sttResponse = await fetch("/api/stt", {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+    });
+
+    const sttData = await sttResponse.json();
+    const userText = sttData.text;
+    voiceStatus.textContent = `"${userText}"`;
+
+    const agentResponse = await fetch("/api/voice-agent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ userMessage: userText }),
+    });
+
+    const agentData = await agentResponse.json();
+    voiceStatus.textContent = agentData.message;
+
+    await speak(agentData.message);
+
+    if (agentData.action) {
+      setTimeout(() => location.reload(), 2000);
+    }
+  } catch (err) {
+    console.error(err);
+    voiceStatus.textContent = "Error occurred!";
+  }
+}
+
+async function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = "en-US";
+  utterance.rate = 1;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
 }
