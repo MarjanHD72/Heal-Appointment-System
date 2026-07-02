@@ -231,7 +231,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 
-// ========== HELPERS ==========
+//HELPERS
 
 function setElementVisibility(elementId, isVisible) {
   const element = document.getElementById(elementId);
@@ -308,7 +308,7 @@ if (bookingBtn) {
   });
 }
 
-// ========== APPOINTMENTS ==========
+// APPOINTMENTS
 
 async function loadAppointments() {
   const appointmentsList = document.getElementById("appointmentsList");
@@ -354,10 +354,16 @@ function renderAppointments(appointments) {
     <article class="appointment-card">
       <span class="appointment-meta">${appointment.date}</span>
       <span class="status-badge ${displayStatus.toLowerCase()}">${displayStatus}</span>
-      <h3>${appointment.title}</h3>
+      <h3>${appointment.title === "gp" ? "GP" : appointment.title}</h3>
       <p>${appointment.notes}</p>
-      <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">Cancel your Appointment</button>
-      <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">Edit your Appointment</button>
+     ${
+       displayStatus === "Upcoming"
+         ? `
+  <button onclick="deleteAppointment('${appointment._id}')" class="btn-danger">Cancel your Appointment</button>
+  <button onclick="EditAppointment('${appointment._id}')" class="btn-warning">Edit your Appointment</button>
+`
+         : ""
+     }
     </article>`;
   });
   html += "</div>";
@@ -470,7 +476,7 @@ async function updateStatus(id, status) {
   }
 }
 
-// ========== CHAT WIDGET ==========
+// CHAT WIDGET
 
 function addMessage(text, sender) {
   const messages = document.getElementById("chat-messages");
@@ -527,7 +533,7 @@ async function sendTextMessage() {
   }
 }
 
-// ========== VOICE AGENT ==========
+// VOICE AGENT
 
 let mediaRecorder;
 let audioChunks = [];
@@ -714,7 +720,7 @@ function speak(text) {
   });
 }
 
-// ========== DOCTORS DIRECTORY ==========
+// DOCTORS DIRECTORY
 
 function initializeDoctorsDirectory() {
   const doctors = [

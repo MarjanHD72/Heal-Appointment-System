@@ -249,7 +249,7 @@ Available appointment types: GP Consultation, Nurse Visit, Specialist Referral
 
 STRICT RULES:
 1. When user wants to book: collect type, date, and time (one question at a time if missing)
-2. Convert natural language: "3pm" = "15:00", "5th of July 2026" = "2026-07-05", "dentist/doctor/gp" = "GP Consultation", "nurse" = "Nurse Visit", "specialist" = "Specialist Referral"
+2. Convert natural language: "3pm" = "15:00", "5th of July 2026" = "2026-07-05", "dentist/doctor/GP" = "GP Consultation", "nurse" = "Nurse Visit", "specialist" = "Specialist Referral"
 3. Once you have ALL info (type + date + time): output ONLY this JSON on its own line:
 {"action":"book","title":"GP Consultation","date":"2026-07-05 at 15:00","notes":"reason"}
 4. To cancel: {"action":"cancel","title":"EXACT_TITLE","date":"PARTIAL_DATE"}
@@ -291,25 +291,6 @@ STRICT RULES:
       if (jsonMatch) {
         const action = JSON.parse(jsonMatch[0]);
 
-        // if (action.action === "book") {
-        //   if (!isValidField(action.title) || !isValidField(action.date)) {
-        //     return res.json({
-        //       message:
-        //         "I need the appointment type, date, and time. Could you provide the missing details?",
-        //     });
-        //   }
-        //   const newAppt = new Appointment({
-        //     title: action.title,
-        //     date: action.date,
-        //     notes: action.notes || "",
-        //     userId,
-        //   });
-        //   await newAppt.save();
-        //   return res.json({
-        //     message: "Done! Your appointment has been booked.",
-        //     action: "booked",
-        //   });
-        // }
         if (action.action === "book") {
           if (!isValidField(action.title) || !isValidField(action.date)) {
             return res.json({
