@@ -17,6 +17,7 @@ const greenTheme = {
 };
 
 let allAppointments = [];
+let chatHistory = [];
 
 async function showSuccess(message) {
   return await Swal.fire({
@@ -53,7 +54,6 @@ async function showConfirm(message) {
 document.addEventListener("DOMContentLoaded", function () {
   getHealthTip();
 
-  // Mobile nav toggle
   const navToggle = document.querySelector(".nav-toggle");
   const mainNav = document.querySelector("nav");
   if (navToggle && mainNav) {
@@ -71,7 +71,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Login form
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -89,9 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (res.ok) {
           await showSuccess("Login successful! 🌿");
           window.location.href = "dashboard.html";
-        } else {
-          showError(data.message || "Login failed");
-        }
+        } else showError(data.message || "Login failed");
       } catch (err) {
         console.error(err);
         showError("Something went wrong");
@@ -99,7 +96,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Register form
   const registerForm = document.getElementById("registerForm");
   if (registerForm) {
     registerForm.addEventListener("submit", async function (e) {
@@ -137,9 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (res.ok) {
           await showSuccess("Registration successful! 🌿");
           window.location.href = "login.html";
-        } else {
-          showError(data.message || "Registration failed");
-        }
+        } else showError(data.message || "Registration failed");
       } catch (err) {
         console.error(err);
         showError("Something went wrong");
@@ -147,7 +141,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Booking form
   const bookingForm = document.getElementById("bookingForm");
   if (bookingForm) {
     bookingForm.addEventListener("submit", async function (e) {
@@ -183,7 +176,6 @@ document.addEventListener("DOMContentLoaded", function () {
   if (document.getElementById("appointmentsList")) loadAppointments();
   if (document.getElementById("doctorCards")) initializeDoctorsDirectory();
 
-  // Logout
   const logoutBtn = document.getElementById("logout");
   if (logoutBtn) {
     logoutBtn.addEventListener("click", async function (e) {
@@ -213,13 +205,11 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("chat-box").classList.toggle("hidden");
     });
   }
-
   if (chatHeader) {
     chatHeader.addEventListener("click", () => {
       document.getElementById("chat-box").classList.toggle("hidden");
     });
   }
-
   if (sendBtn) sendBtn.addEventListener("click", sendTextMessage);
   if (chatInput) {
     chatInput.addEventListener("keypress", (e) => {
@@ -227,21 +217,21 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Load chat history from server
+  if (document.getElementById("chat-messages")) loadChatHistory();
+
   // Voice btn
   const voiceBtn = document.getElementById("voice-btn");
   if (voiceBtn) {
     voiceBtn.addEventListener("click", async (e) => {
       e.stopPropagation();
-      if (!isRecording) {
-        await startConversation();
-      } else {
-        stopConversation();
-      }
+      if (!isRecording) await startConversation();
+      else stopConversation();
     });
   }
 });
 
-// ========== HELPER FUNCTIONS ==========
+// ========== HELPERS ==========
 
 function setElementVisibility(elementId, isVisible) {
   const element = document.getElementById(elementId);
@@ -261,15 +251,14 @@ function updateNavigation(isLoggedIn) {
 }
 
 function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function getHealthTip() {
   const quoteEl = document.getElementById("quote");
   if (!quoteEl) return;
-  const randomIndex = Math.floor(Math.random() * healthTips.length);
-  quoteEl.innerHTML = `<div style="margin-top:6px;">${healthTips[randomIndex]}</div>`;
+  const tip = healthTips[Math.floor(Math.random() * healthTips.length)];
+  quoteEl.innerHTML = `<div style="margin-top:6px;">${tip}</div>`;
 }
 
 async function checkLogin() {
@@ -305,18 +294,14 @@ function loadBookingSummary() {
   }
 }
 
-// Booking btn
 const bookingBtn = document.getElementById("bookingBtn");
 if (bookingBtn) {
   bookingBtn.addEventListener("click", async function (e) {
     e.preventDefault();
     try {
       const res = await fetch("/api/me", { credentials: "include" });
-      if (res.ok) {
-        window.location.href = "booking.html";
-      } else {
-        window.location.href = "login.html";
-      }
+      if (res.ok) window.location.href = "booking.html";
+      else window.location.href = "login.html";
     } catch (err) {
       console.error(err);
     }
@@ -344,12 +329,14 @@ async function loadAppointments() {
     );
   } catch (err) {
     console.error(err);
-    appointmentsList.innerHTML = "<p>Error loading appointments</p>";
+    if (appointmentsList)
+      appointmentsList.innerHTML = "<p>Error loading appointments</p>";
   }
 }
 
 function renderAppointments(appointments) {
   const appointmentsList = document.getElementById("appointmentsList");
+  if (!appointmentsList) return;
   if (appointments.length === 0) {
     appointmentsList.innerHTML =
       '<p class="empty-state">No appointments booked yet.</p>';
@@ -418,14 +405,14 @@ async function EditAppointment(id) {
     title: "Edit Appointment",
     html: `
   <div style="width:calc(100% - 3.5em);margin:0 auto;display:flex;flex-direction:column;gap:0.5em;">
-    <select id="swal-title" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);appearance:auto;">
+    <select id="swal-title" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;appearance:auto;">
       <option value="">Select Type</option>
       <option value="GP Consultation">GP Consultation</option>
       <option value="Nurse Visit">Nurse Visit</option>
       <option value="Specialist Referral">Specialist Referral</option>
     </select>
-    <input id="swal-date" type="date" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);box-sizing:border-box;">
-    <select id="swal-time" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);appearance:auto;">
+    <input id="swal-date" type="date" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-sizing:border-box;">
+    <select id="swal-time" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;appearance:auto;">
       <option value="">Select Time</option>
       <option value="09:00">09:00</option>
       <option value="10:00">10:00</option>
@@ -434,7 +421,7 @@ async function EditAppointment(id) {
       <option value="15:00">15:00</option>
       <option value="16:00">16:00</option>
     </select>
-    <textarea id="swal-notes" placeholder="Reason" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;box-shadow:inset 0 1px 1px rgba(0,0,0,.06);resize:vertical;min-height:7em;font-family:inherit;box-sizing:border-box;"></textarea>
+    <textarea id="swal-notes" placeholder="Reason" style="width:100%;padding:0.75em 1em;font-size:1em;border:1px solid #d9d9d9;border-radius:0.3125em;color:#545454;background:#fff;resize:vertical;min-height:7em;font-family:inherit;box-sizing:border-box;"></textarea>
   </div>`,
     showCancelButton: true,
     confirmButtonText: "Save",
@@ -495,13 +482,30 @@ function addMessage(text, sender) {
   messages.scrollTop = messages.scrollHeight;
 }
 
+async function loadChatHistory() {
+  try {
+    const res = await fetch("/api/chat-history", { credentials: "include" });
+    if (res.ok) {
+      const data = await res.json();
+      chatHistory = data.history || [];
+      chatHistory.forEach((msg) =>
+        addMessage(msg.content, msg.role === "user" ? "user" : "ai"),
+      );
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 async function sendTextMessage() {
   const input = document.getElementById("chat-input");
   const voiceStatus = document.getElementById("voice-status");
   const text = input.value.trim();
   if (!text) return;
 
+  window.speechSynthesis.cancel();
   addMessage(text, "user");
+  chatHistory.push({ role: "user", content: text });
   input.value = "";
   if (voiceStatus) voiceStatus.textContent = "Thinking...";
 
@@ -514,15 +518,16 @@ async function sendTextMessage() {
     });
     const data = await res.json();
     addMessage(data.message, "ai");
+    chatHistory.push({ role: "assistant", content: data.message });
     if (voiceStatus) voiceStatus.textContent = "";
-    if (data.action) setTimeout(() => location.reload(), 2000);
+    if (data.action) loadAppointments();
   } catch (err) {
     console.error(err);
     if (voiceStatus) voiceStatus.textContent = "Error!";
   }
 }
 
-// VOICE AGENT 
+// ========== VOICE AGENT ==========
 
 let mediaRecorder;
 let audioChunks = [];
@@ -536,7 +541,7 @@ async function startConversation() {
   const voiceBtn = document.getElementById("voice-btn");
   const voiceStatus = document.getElementById("voice-status");
   if (voiceBtn) voiceBtn.classList.add("recording");
-  if (voiceStatus) voiceStatus.textContent = "Listening...";
+
   listenForSpeech();
 }
 
@@ -553,7 +558,6 @@ function stopConversation() {
 
 function listenForSpeech() {
   if (!isRecording) return;
-
   audioChunks = [];
   mediaRecorder = new MediaRecorder(stream);
 
@@ -561,6 +565,7 @@ function listenForSpeech() {
   const source = audioContext.createMediaStreamSource(stream);
   const analyser = audioContext.createAnalyser();
   source.connect(analyser);
+  window._voiceAnalyser = analyser;
   analyser.fftSize = 512;
 
   const dataArray = new Uint8Array(analyser.frequencyBinCount);
@@ -568,7 +573,6 @@ function listenForSpeech() {
   let silenceStart = null;
 
   mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
-
   mediaRecorder.onstop = async () => {
     audioContext.close();
     if (speechDetected && audioChunks.length > 0) {
@@ -578,14 +582,12 @@ function listenForSpeech() {
       if (isRecording) listenForSpeech();
     }
   };
-
   mediaRecorder.start();
 
   function checkVolume() {
     if (!isRecording) return;
     analyser.getByteFrequencyData(dataArray);
     const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
-
     if (volume > 15) {
       if (!speechDetected) {
         window.speechSynthesis.cancel();
@@ -603,7 +605,6 @@ function listenForSpeech() {
     }
     requestAnimationFrame(checkVolume);
   }
-
   checkVolume();
 
   silenceTimer = setTimeout(() => {
@@ -614,8 +615,6 @@ function listenForSpeech() {
 async function processAudio(audioBlob) {
   const voiceStatus = document.getElementById("voice-status");
   try {
-    if (voiceStatus) voiceStatus.textContent = "Processing...";
-
     const formData = new FormData();
     formData.append("file", audioBlob, "audio.webm");
     formData.append("model", "whisper-large-v3");
@@ -625,7 +624,6 @@ async function processAudio(audioBlob) {
       body: formData,
       credentials: "include",
     });
-
     const sttData = await sttResponse.json();
     const userText = sttData.text;
 
@@ -634,8 +632,8 @@ async function processAudio(audioBlob) {
       return;
     }
 
-    if (voiceStatus) voiceStatus.textContent = `"${userText}"`;
     addMessage(userText, "user");
+    chatHistory.push({ role: "user", content: userText });
 
     const agentResponse = await fetch("/api/voice-agent", {
       method: "POST",
@@ -646,10 +644,17 @@ async function processAudio(audioBlob) {
 
     const agentData = await agentResponse.json();
     addMessage(agentData.message, "ai");
+    chatHistory.push({ role: "assistant", content: agentData.message });
+
+    // interupting AI
 
     await speak(agentData.message);
 
-    if (agentData.action) setTimeout(() => location.reload(), 2000);
+    if (agentData.action === "stop") {
+      stopConversation();
+    } else if (agentData.action) {
+      loadAppointments();
+    }
   } catch (err) {
     console.error(err);
     if (voiceStatus) voiceStatus.textContent = "Error occurred!";
@@ -657,16 +662,54 @@ async function processAudio(audioBlob) {
 }
 
 function speak(text) {
+  // Convert times
+  text = text.replace(/\b(\d{1,2}):(\d{2})\b/g, (match, h, m) => {
+    const hour = parseInt(h);
+    const period = hour >= 12 ? "PM" : "AM";
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return m === "00"
+      ? `${displayHour} ${period}`
+      : `${displayHour} ${m} ${period}`;
+  });
+
   return new Promise((resolve) => {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = "en-US";
+
+    // Check for interruption while speaking
+    let interrupted = false;
+    const interruptCheck = setInterval(() => {
+      if (!isRecording) {
+        clearInterval(interruptCheck);
+        return;
+      }
+      const analyser = window._voiceAnalyser;
+      if (!analyser) return;
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      analyser.getByteFrequencyData(dataArray);
+      const volume = dataArray.reduce((a, b) => a + b) / dataArray.length;
+      if (volume > 20) {
+        window.speechSynthesis.cancel();
+        interrupted = true;
+        clearInterval(interruptCheck);
+      }
+    }, 100);
+
     utterance.onend = () => {
+      clearInterval(interruptCheck);
       const voiceStatus = document.getElementById("voice-status");
       if (voiceStatus) voiceStatus.textContent = "Listening...";
       if (isRecording) listenForSpeech();
       resolve();
     };
+
+    utterance.onerror = () => {
+      clearInterval(interruptCheck);
+      if (isRecording) listenForSpeech();
+      resolve();
+    };
+
     window.speechSynthesis.speak(utterance);
   });
 }

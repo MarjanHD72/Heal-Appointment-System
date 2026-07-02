@@ -116,7 +116,7 @@ main {
 .form-section,
 .dashboard,
 .doctors-directory {
-  padding: 4rem 0;
+  padding: 2rem 0;
 }
 
 .hero-card,
@@ -230,7 +230,7 @@ main {
 .form-section h2,
 .dashboard h2 {
   font-size: clamp(2rem, 4vw, 3.4rem);
-  line-height: 1.1;
+  line-height: 1;
   margin-bottom: 1rem;
   color: var(--text);
 }
