@@ -36,9 +36,21 @@
       </div>
     </header>
     <!-- Floating Voice Button -->
-    <div id="voice-widget">
-      <button id="voice-btn" title="Voice Assistant">🎤</button>
-      <p id="voice-status"></p>
+    <!-- Chat Widget -->
+    <div id="chat-widget">
+      <div id="chat-header">
+        <span>🏥 AI Assistant</span>
+        <button id="chat-toggle">💬</button>
+      </div>
+      <div id="chat-box" class="hidden">
+        <div id="chat-messages"></div>
+        <div id="chat-input-area">
+          <input type="text" id="chat-input" placeholder="Type a message..." />
+          <button id="voice-btn" title="Voice">🎤</button>
+          <button id="send-btn">➤</button>
+        </div>
+        <p id="voice-status"></p>
+      </div>
     </div>
     <main>
       <section class="dashboard">
