@@ -219,7 +219,6 @@ document.addEventListener("DOMContentLoaded", async function () {
     });
   }
 
-  loadBookingSummary();
   checkLogin();
 
   // Chat Widget
@@ -309,17 +308,6 @@ async function checkLogin() {
   } catch (err) {
     console.error(err);
     updateNavigation(false);
-  }
-}
-
-function loadBookingSummary() {
-  const bookingCard = document.getElementById("data");
-  if (!bookingCard) return;
-  const booking = JSON.parse(localStorage.getItem("booking"));
-  if (booking) {
-    bookingCard.innerHTML = `<p><strong>${booking.name}</strong></p><p>Doctor: ${booking.doctor}</p><p>Time: ${booking.time}</p>`;
-  } else {
-    bookingCard.innerHTML = "No booking yet";
   }
 }
 

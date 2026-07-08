@@ -54,11 +54,6 @@ app.get("/api/me", (req, res) => {
   res.json(req.session.user);
 });
 
-app.get("/api/check-auth", (req, res) => {
-  if (req.session.user) res.json({ loggedIn: true, user: req.session.user });
-  else res.json({ loggedIn: false });
-});
-
 app.post("/api/register", async (req, res) => {
   const { firstName, lastName, email, password, nhsNumber } = req.body;
   console.log("DATA RECEIVED:", req.body);
@@ -83,10 +78,6 @@ app.post("/api/register", async (req, res) => {
 
 app.post("/api/logout", (req, res) => {
   req.session.destroy(() => res.json({ message: "Logged out" }));
-});
-
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/login"));
 });
 
 app.get("/login", (req, res) =>
@@ -144,28 +135,6 @@ app.get("/api/appointments", async (req, res) => {
   if (!req.session.user)
     return res.status(401).json({ message: "Not logged in" });
   try {
-    // Check if user is confirming a pending booking
-    if (req.session.pendingBooking) {
-      const confirmWords =
-        /\b(yes|yeah|sure|ok|okay|confirm|yep|please|book it)\b/i;
-      if (confirmWords.test(userMessage)) {
-        const pending = req.session.pendingBooking;
-        const newAppt = new Appointment({
-          title: pending.title,
-          date: pending.suggestedDate,
-          notes: pending.notes,
-          userId,
-        });
-        await newAppt.save();
-        req.session.pendingBooking = null;
-        return res.json({
-          message: `Done! Your appointment has been booked for ${pending.suggestedDate}.`,
-          action: "booked",
-        });
-      } else {
-        req.session.pendingBooking = null;
-      }
-    }
     const appointments = await Appointment.find({
       userId: req.session.user.id,
     }).sort({ date: -1 });
