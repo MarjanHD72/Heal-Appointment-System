@@ -51,7 +51,31 @@ async function showConfirm(message) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("pageshow", async function (event) {
+  // Check login
+  try {
+    const res = await fetch("/api/me", { credentials: "include" });
+    if (!res.ok) {
+      if (
+        window.location.pathname.includes("dashboard.html") ||
+        window.location.pathname.includes("booking.html")
+      ) {
+        window.location.href = "login.html";
+        return;
+      }
+    }
+  } catch (err) {
+    console.error("Auth check error:", err);
+    if (
+      window.location.pathname.includes("dashboard.html") ||
+      window.location.pathname.includes("booking.html")
+    ) {
+      window.location.href = "login.html";
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", async function () {
   getHealthTip();
 
   const navToggle = document.querySelector(".nav-toggle");
@@ -70,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-
+  await checkLogin();
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -173,6 +197,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const dateInput = document.getElementById("date");
+  if (dateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+  }
   if (document.getElementById("appointmentsList")) loadAppointments();
   if (document.getElementById("doctorCards")) initializeDoctorsDirectory();
 
@@ -911,7 +940,7 @@ function initializeDoctorsDirectory() {
           <span class="doctor-card-chip">${doctor.availability}</span>
           <span class="doctor-card-chip">${doctor.consultation}</span>
         </div>
-        <button class="btn-secondary" type="button" data-doctor-id="${doctor.id}">View Details</button>
+       
       </article>`,
       )
       .join("");

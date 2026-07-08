@@ -95,12 +95,24 @@ app.get("/login", (req, res) =>
 app.get("/register", (req, res) =>
   res.sendFile(path.join(__dirname, "Public/register.html")),
 );
-app.get("/dashboard", isAuthenticated, (req, res) =>
-  res.sendFile(path.join(__dirname, "Public/dashboard.html")),
-);
-app.get("/booking", isAuthenticated, (req, res) =>
-  res.sendFile(path.join(__dirname, "Public/booking.html")),
-);
+app.get("/dashboard", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/dashboard.html"));
+});
+app.get("/booking", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/booking.html"));
+});
+// All nav links point at the .html files directly, so those must be
+// guarded too — otherwise express.static below serves them unauthenticated.
+app.get("/dashboard.html", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/dashboard.html"));
+});
+app.get("/booking.html", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/booking.html"));
+});
 app.use(express.static(path.join(__dirname, "Public")));
 
 function isValidField(value) {
@@ -261,7 +273,7 @@ STRICT RULES:
 10. NEVER show IDs or raw data to use.
 11.Only accept confirmation words like "yes", "confirm", "ok", "yeah" - ignore other languages or unrelated responses.
 12.When user says goodbye/bye/thanks/see you: respond with {"action":"stop","message":"Goodbye! Have a great day!"}
-`;
+13.Never accept New appointment of past day.`;
 
     const messages = [
       { role: "system", content: systemPrompt },
@@ -355,7 +367,16 @@ STRICT RULES:
                 : "That slot is already booked and no other slots are available soon.",
             });
           }
+          const appointmentDate = new Date(action.date.split(" at ")[0]);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
 
+          if (appointmentDate < today) {
+            return res.json({
+              message:
+                "I can't book appointments in the past. Please choose a future date.",
+            });
+          }
           const newAppt = new Appointment({
             title: action.title,
             date: action.date,
