@@ -31,7 +31,7 @@ async function showSuccess(message) {
 function showError(message) {
   Swal.fire({
     icon: "error",
-    title: "Something went wrong",
+    title: "Incorrect Username or Password",
     text: message,
     confirmButtonColor: "#2e7d5b",
     background: "#e6f4ea",
@@ -115,7 +115,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         } else showError(data.message || "Login failed");
       } catch (err) {
         console.error(err);
-        showError("Something went wrong");
+        showError("User name or Password is not correct");
       }
     });
   }
@@ -139,6 +139,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         !nhsNumber
       ) {
         showError("Please fill all fields correctly.");
+        return;
+      }
+      if (!validateNHSNumber(nhsNumber)) {
+        showError("Please enter a valid 10-digit NHS number.");
         return;
       }
       try {
@@ -280,6 +284,20 @@ function updateNavigation(isLoggedIn) {
 
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// Validates a UK NHS number
+function validateNHSNumber(nhsNumber) {
+  if (!/^\d{10}$/.test(nhsNumber)) return false;
+  const digits = nhsNumber.split("").map(Number);
+  const sum = digits
+    .slice(0, 9)
+    .reduce((total, digit, index) => total + digit * (10 - index), 0);
+  const remainder = sum % 11;
+  let checkDigit = 11 - remainder;
+  if (checkDigit === 11) checkDigit = 0;
+  if (checkDigit === 10) return false;
+  return checkDigit === digits[9];
 }
 
 function getHealthTip() {

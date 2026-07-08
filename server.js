@@ -33,7 +33,7 @@ app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user) return res.status(400).json({ message: "Try Again" });
     if (user.password !== password)
       return res.status(400).json({ message: "Incorrect password" });
     req.session.user = {
@@ -54,9 +54,26 @@ app.get("/api/me", (req, res) => {
   res.json(req.session.user);
 });
 
+// Validates a UK NHS number using the official Modulus 11 check-digit algorithm.
+function isValidNHSNumber(nhsNumber) {
+  if (typeof nhsNumber !== "string" || !/^\d{10}$/.test(nhsNumber))
+    return false;
+  const digits = nhsNumber.split("").map(Number);
+  const sum = digits
+    .slice(0, 9)
+    .reduce((total, digit, index) => total + digit * (10 - index), 0);
+  const remainder = sum % 11;
+  let checkDigit = 11 - remainder;
+  if (checkDigit === 11) checkDigit = 0;
+  if (checkDigit === 10) return false;
+  return checkDigit === digits[9];
+}
+
 app.post("/api/register", async (req, res) => {
   const { firstName, lastName, email, password, nhsNumber } = req.body;
   console.log("DATA RECEIVED:", req.body);
+  if (!isValidNHSNumber(nhsNumber))
+    return res.status(400).json({ message: "Invalid NHS number" });
   try {
     const user = await User.create({
       firstName,
