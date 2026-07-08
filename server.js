@@ -33,7 +33,7 @@ app.post("/api/login", async (req, res) => {
   const { email, password } = req.body;
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "User not found" });
+    if (!user) return res.status(400).json({ message: "Try Again" });
     if (user.password !== password)
       return res.status(400).json({ message: "Incorrect password" });
     req.session.user = {
@@ -54,18 +54,31 @@ app.get("/api/me", (req, res) => {
   res.json(req.session.user);
 });
 
-app.get("/api/check-auth", (req, res) => {
-  if (req.session.user) res.json({ loggedIn: true, user: req.session.user });
-  else res.json({ loggedIn: false });
-});
+// Validates a UK NHS number using the official Modulus 11 check-digit algorithm.
+function isValidNHSNumber(nhsNumber) {
+  if (typeof nhsNumber !== "string" || !/^\d{10}$/.test(nhsNumber))
+    return false;
+  const digits = nhsNumber.split("").map(Number);
+  const sum = digits
+    .slice(0, 9)
+    .reduce((total, digit, index) => total + digit * (10 - index), 0);
+  const remainder = sum % 11;
+  let checkDigit = 11 - remainder;
+  if (checkDigit === 11) checkDigit = 0;
+  if (checkDigit === 10) return false;
+  return checkDigit === digits[9];
+}
 
 app.post("/api/register", async (req, res) => {
   const { firstName, lastName, email, password, nhsNumber } = req.body;
   console.log("DATA RECEIVED:", req.body);
+  if (!isValidNHSNumber(nhsNumber))
+    return res.status(400).json({ message: "Invalid NHS number" });
   try {
     const user = await User.create({
-      firstName,
-      lastName,
+      // Remove any character that is a number or special char
+      firstName: String(firstName).replace(/[^a-zA-Z\s'-]/g, "").trim(),
+      lastName: String(lastName).replace(/[^a-zA-Z\s'-]/g, "").trim(),
       email,
       password,
       nhsNumber,
@@ -85,22 +98,30 @@ app.post("/api/logout", (req, res) => {
   req.session.destroy(() => res.json({ message: "Logged out" }));
 });
 
-app.get("/logout", (req, res) => {
-  req.session.destroy(() => res.redirect("/login"));
-});
-
 app.get("/login", (req, res) =>
   res.sendFile(path.join(__dirname, "Public/login.html")),
 );
 app.get("/register", (req, res) =>
   res.sendFile(path.join(__dirname, "Public/register.html")),
 );
-app.get("/dashboard", isAuthenticated, (req, res) =>
-  res.sendFile(path.join(__dirname, "Public/dashboard.html")),
-);
-app.get("/booking", isAuthenticated, (req, res) =>
-  res.sendFile(path.join(__dirname, "Public/booking.html")),
-);
+app.get("/dashboard", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/dashboard.html"));
+});
+app.get("/booking", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/booking.html"));
+});
+// All nav links point at the .html files directly, so those must be
+// guarded too — otherwise express.static below serves them unauthenticated.
+app.get("/dashboard.html", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/dashboard.html"));
+});
+app.get("/booking.html", isAuthenticated, (req, res) => {
+  res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+  res.sendFile(path.join(__dirname, "Public/booking.html"));
+});
 app.use(express.static(path.join(__dirname, "Public")));
 
 function isValidField(value) {
@@ -132,28 +153,6 @@ app.get("/api/appointments", async (req, res) => {
   if (!req.session.user)
     return res.status(401).json({ message: "Not logged in" });
   try {
-    // Check if user is confirming a pending booking
-    if (req.session.pendingBooking) {
-      const confirmWords =
-        /\b(yes|yeah|sure|ok|okay|confirm|yep|please|book it)\b/i;
-      if (confirmWords.test(userMessage)) {
-        const pending = req.session.pendingBooking;
-        const newAppt = new Appointment({
-          title: pending.title,
-          date: pending.suggestedDate,
-          notes: pending.notes,
-          userId,
-        });
-        await newAppt.save();
-        req.session.pendingBooking = null;
-        return res.json({
-          message: `Done! Your appointment has been booked for ${pending.suggestedDate}.`,
-          action: "booked",
-        });
-      } else {
-        req.session.pendingBooking = null;
-      }
-    }
     const appointments = await Appointment.find({
       userId: req.session.user.id,
     }).sort({ date: -1 });
@@ -261,7 +260,7 @@ STRICT RULES:
 10. NEVER show IDs or raw data to use.
 11.Only accept confirmation words like "yes", "confirm", "ok", "yeah" - ignore other languages or unrelated responses.
 12.When user says goodbye/bye/thanks/see you: respond with {"action":"stop","message":"Goodbye! Have a great day!"}
-`;
+13.Never accept New appointment of past day.`;
 
     const messages = [
       { role: "system", content: systemPrompt },
@@ -355,7 +354,16 @@ STRICT RULES:
                 : "That slot is already booked and no other slots are available soon.",
             });
           }
+          const appointmentDate = new Date(action.date.split(" at ")[0]);
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
 
+          if (appointmentDate < today) {
+            return res.json({
+              message:
+                "I can't book appointments in the past. Please choose a future date.",
+            });
+          }
           const newAppt = new Appointment({
             title: action.title,
             date: action.date,

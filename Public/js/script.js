@@ -31,7 +31,7 @@ async function showSuccess(message) {
 function showError(message) {
   Swal.fire({
     icon: "error",
-    title: "Something went wrong",
+    title: "Incorrect Username or Password",
     text: message,
     confirmButtonColor: "#2e7d5b",
     background: "#e6f4ea",
@@ -51,7 +51,31 @@ async function showConfirm(message) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", function () {
+window.addEventListener("pageshow", async function (event) {
+  // Check login
+  try {
+    const res = await fetch("/api/me", { credentials: "include" });
+    if (!res.ok) {
+      if (
+        window.location.pathname.includes("dashboard.html") ||
+        window.location.pathname.includes("booking.html")
+      ) {
+        window.location.href = "login.html";
+        return;
+      }
+    }
+  } catch (err) {
+    console.error("Auth check error:", err);
+    if (
+      window.location.pathname.includes("dashboard.html") ||
+      window.location.pathname.includes("booking.html")
+    ) {
+      window.location.href = "login.html";
+    }
+  }
+});
+
+document.addEventListener("DOMContentLoaded", async function () {
   getHealthTip();
 
   const navToggle = document.querySelector(".nav-toggle");
@@ -70,7 +94,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
-
+  await checkLogin();
   const loginForm = document.getElementById("loginForm");
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -91,7 +115,7 @@ document.addEventListener("DOMContentLoaded", function () {
         } else showError(data.message || "Login failed");
       } catch (err) {
         console.error(err);
-        showError("Something went wrong");
+        showError("User name or Password is not correct");
       }
     });
   }
@@ -100,8 +124,15 @@ document.addEventListener("DOMContentLoaded", function () {
   if (registerForm) {
     registerForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      const firstName = document.getElementById("firstName").value;
-      const lastName = document.getElementById("lastName").value;
+      // Remove any character that is a number or special char
+      const firstName = document
+        .getElementById("firstName")
+        .value.replace(/[^a-zA-Z\s'-]/g, "")
+        .trim();
+      const lastName = document
+        .getElementById("lastName")
+        .value.replace(/[^a-zA-Z\s'-]/g, "")
+        .trim();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
@@ -115,6 +146,10 @@ document.addEventListener("DOMContentLoaded", function () {
         !nhsNumber
       ) {
         showError("Please fill all fields correctly.");
+        return;
+      }
+      if (!validateNHSNumber(nhsNumber)) {
+        showError("Please enter a valid 10-digit NHS number.");
         return;
       }
       try {
@@ -173,6 +208,11 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  const dateInput = document.getElementById("date");
+  if (dateInput) {
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+  }
   if (document.getElementById("appointmentsList")) loadAppointments();
   if (document.getElementById("doctorCards")) initializeDoctorsDirectory();
 
@@ -190,7 +230,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  loadBookingSummary();
   checkLogin();
 
   // Chat Widget
@@ -250,8 +289,20 @@ function updateNavigation(isLoggedIn) {
   setElementVisibility("createAccountBtn", !isLoggedIn);
 }
 
-function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+
+// Validates a UK NHS number
+function validateNHSNumber(nhsNumber) {
+  if (!/^\d{10}$/.test(nhsNumber)) return false;
+  const digits = nhsNumber.split("").map(Number);
+  const sum = digits
+    .slice(0, 9)
+    .reduce((total, digit, index) => total + digit * (10 - index), 0);
+  const remainder = sum % 11;
+  let checkDigit = 11 - remainder;
+  if (checkDigit === 11) checkDigit = 0;
+  if (checkDigit === 10) return false;
+  return checkDigit === digits[9];
 }
 
 function getHealthTip() {
@@ -280,17 +331,6 @@ async function checkLogin() {
   } catch (err) {
     console.error(err);
     updateNavigation(false);
-  }
-}
-
-function loadBookingSummary() {
-  const bookingCard = document.getElementById("data");
-  if (!bookingCard) return;
-  const booking = JSON.parse(localStorage.getItem("booking"));
-  if (booking) {
-    bookingCard.innerHTML = `<p><strong>${booking.name}</strong></p><p>Doctor: ${booking.doctor}</p><p>Time: ${booking.time}</p>`;
-  } else {
-    bookingCard.innerHTML = "No booking yet";
   }
 }
 
@@ -911,7 +951,7 @@ function initializeDoctorsDirectory() {
           <span class="doctor-card-chip">${doctor.availability}</span>
           <span class="doctor-card-chip">${doctor.consultation}</span>
         </div>
-        <button class="btn-secondary" type="button" data-doctor-id="${doctor.id}">View Details</button>
+       
       </article>`,
       )
       .join("");
