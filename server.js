@@ -76,8 +76,9 @@ app.post("/api/register", async (req, res) => {
     return res.status(400).json({ message: "Invalid NHS number" });
   try {
     const user = await User.create({
-      firstName,
-      lastName,
+      // Remove any character that is a number or special char
+      firstName: String(firstName).replace(/[^a-zA-Z\s'-]/g, "").trim(),
+      lastName: String(lastName).replace(/[^a-zA-Z\s'-]/g, "").trim(),
       email,
       password,
       nhsNumber,

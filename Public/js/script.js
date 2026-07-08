@@ -124,8 +124,15 @@ document.addEventListener("DOMContentLoaded", async function () {
   if (registerForm) {
     registerForm.addEventListener("submit", async function (e) {
       e.preventDefault();
-      const firstName = document.getElementById("firstName").value;
-      const lastName = document.getElementById("lastName").value;
+      // Remove any character that is a number or special char
+      const firstName = document
+        .getElementById("firstName")
+        .value.replace(/[^a-zA-Z\s'-]/g, "")
+        .trim();
+      const lastName = document
+        .getElementById("lastName")
+        .value.replace(/[^a-zA-Z\s'-]/g, "")
+        .trim();
       const email = document.getElementById("email").value;
       const password = document.getElementById("password").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
@@ -282,9 +289,7 @@ function updateNavigation(isLoggedIn) {
   setElementVisibility("createAccountBtn", !isLoggedIn);
 }
 
-function validateEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
+
 
 // Validates a UK NHS number
 function validateNHSNumber(nhsNumber) {
